@@ -1,0 +1,16 @@
+{
+  "_aciklama": "Mola denetiminin ayarı (node araclar/mola.mjs). Verilen alan varsayılanın yerine geçer. kapsam: kopya = yalnız bir çalışma kopyasının içinde çalışıyorsa engel; her-yer = nerede çalışırsa çalışsın engel. bilgiKapilari: bu kapıları dinleyen süreç grubu (ör. proje sahibinin açık geliştirme sunucusu) engel değil bilgi sayılır. devirNotu: bu dosya son 'dakika' içinde commit edilmediyse molada uyarı (engel: true ise mola engellenir). canli.yetki: sahip = proje sahibi 'node araclar/canli.mjs onayla' demeden canlıya çıkılmaz; vekil = vekil karar verir. canli.mesajlaOnay: true ise ve onay kancası (kitteki sablonlar/ornekler/kanca-onay.mjs) kuruluysa proje sahibi bir oturuma 'canlı onay <commit>' yazarak da onay verebilir.",
+  "uzak": "{{UZAK}}",
+  "kayit": "yerel/mola.json",
+  "kilit": "yerel/yayin.kilit",
+  "bilgiKapilari": [],
+  "surecler": [
+    { "ad": "tarayıcı testi", "kalip": "playwright|cypress|chrome-headless-shell", "kapsam": "kopya" },
+    { "ad": "test izleyici", "kalip": "(^|[\\s/])(vitest|jest)(\\s|$|\\.)", "kapsam": "kopya" },
+    { "ad": "geliştirme sunucusu", "kalip": "(^|[\\s/])(vite|webpack-dev-server|nodemon)(\\s|$|/|\\.)|next dev|tsx watch", "kapsam": "kopya" },
+    { "ad": "Blender", "kalip": "Blender\\.app|(^|/)blender(\\s|$)", "kapsam": "her-yer" }
+  ],
+  "bilinmeyenleriYaz": true,
+  "devirNotu": { "dosya": "docs/DURUM.md", "dakika": 30, "engel": false },
+  "canli": { "yetki": "{{CANLI_YETKI}}", "onay": "yerel/canli-onay.json", "gecerlilikSaat": 24, "dal": "main", "mesajlaOnay": false }
+}

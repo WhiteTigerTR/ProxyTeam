@@ -1,0 +1,26 @@
+{
+  "_aciklama": "ÖRNEK, kurulmaz. Projenin .claude/settings.json dosyasına 'hooks' alanı olarak eklenir. Yol, kanca betiklerini projeye nereye koyduğunuza göre değişir. Rol kancası için oturumlar VEKILEKIP_ROL=vekil|lider|gelistirici ortam değişkeniyle açılır. Onay kancası yalnız .vekilekip.json içinde canli.mesajlaOnay true ise bir şey yapar.",
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash|Read|Grep|Glob",
+        "hooks": [
+          { "type": "command", "command": "node \"$CLAUDE_PROJECT_DIR/araclar/kanca-sir-koruma.mjs\"" }
+        ]
+      },
+      {
+        "matcher": "Bash|Edit|Write|MultiEdit|NotebookEdit|Agent|Task",
+        "hooks": [
+          { "type": "command", "command": "node \"$CLAUDE_PROJECT_DIR/araclar/kanca-rol.mjs\"" }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          { "type": "command", "command": "node \"$CLAUDE_PROJECT_DIR/araclar/kanca-onay.mjs\"" }
+        ]
+      }
+    ]
+  }
+}
