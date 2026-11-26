@@ -12,8 +12,8 @@ işi *lider*e ve *geliştirici*ye iletir. Deneysel; şimdilik gözlem var, ölç
 <th width="50%">How the work flows · İş nasıl akar (1:18)</th>
 </tr>
 <tr>
-<td><video src="https://github.com/user-attachments/assets/aef53dca-43c2-4105-8004-d0706bac27d9" controls></video></td>
-<td><video src="https://github.com/user-attachments/assets/d4941eea-c0e8-4354-9c5b-1923295a62f0" controls></video></td>
+<td><video src="https://github.com/user-attachments/assets/3ee1c65c-f15c-44d4-b8fd-c83ad6af19ea" controls></video></td>
+<td><video src="https://github.com/user-attachments/assets/a6e65cd4-2653-4e1e-9ab7-1bded6bb25e3" controls></video></td>
 </tr>
 </table>
 
