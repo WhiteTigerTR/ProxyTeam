@@ -1,12 +1,14 @@
 # VekilEkip: çok oturumlu Claude Code çalışma yöntemi
 
+[English](README.en.md) · Türkçe
+
 VekilEkip, bir yazılım projesini üç Claude Code oturumuyla yürütmek için bir yöntem ve küçük bir araç kitidir.
 Proje sahibi yalnız bir oturumla, **vekil** ile konuşur. Vekil rutin kararları onun yerine verir ve **lider**e iletir.
 Lider işi böler, inceler, birleştirir ve yayımlar. **Geliştirici** yalnız kod yazar. Bütün oturumların ortak belleği
 git deposudur; sohbet geçmişine güvenilmez. Amaç: proje sahibinin tıkaç olmaması, kararların kaybolmaması, oturumların
 kayıpsız durup devam etmesi ve "bitti" denen işin kanıtıyla bitmiş olması.
 
-Hızlı kurulum için: [HIZLI-BASLANGIC.md](HIZLI-BASLANGIC.md). English summary: [README.en.md](README.en.md). Doldurulmuş bir örnek: [ornek/](ornek/).
+Hızlı kurulum için: [HIZLI-BASLANGIC.md](HIZLI-BASLANGIC.md). English: [README.en.md](README.en.md). Doldurulmuş bir örnek: [ornek/](ornek/).
 
 > **Durum: deneysel.** Bu kit bir deneyim paylaşımıdır: iki projede, tek kişi tarafından, birkaç gün kullanıldı.
 > Aşağıdaki faydalar hedeftir, henüz ölçülmüş sonuç değildir. Kit, maliyeti ve kazancı ölçmeye yarayacak kayıtları artık
@@ -518,7 +520,7 @@ Tarama kısaydı ve arama özetlerine dayanır; ayrıntı ve güncel durum için
 | Ayrı çalışma kopyaları, karar kayıtları, bağlam temizliği | Claude Code belgelerinde ve yazılım pratiğinde yerleşik yöntemler. | Fark yok; olduğu gibi kullanılır. |
 
 Bulabildiğimiz kadarıyla bu kite özgü kalanlar: liderden ayrı, proje sahibinin yerine rutin kararları veren bir **vekil** oturumu;
-bu parçaların tek bir düzende, Türkçe olarak anlatılması; ve sonucun bir iddia olarak değil, [ölçüm günlüğüyle](OLCUM-GUNLUGU.md)
+bu parçaların tek bir düzende, Türkçe ve İngilizce olarak anlatılması; ve sonucun bir iddia olarak değil, [ölçüm günlüğüyle](OLCUM-GUNLUGU.md)
 izlenen açık bir soru olarak sunulması. Benzerini biliyorsanız bir kayıt (issue) açın; bu bölümü düzeltiriz.
 
 ---
@@ -552,9 +554,12 @@ VekilEkip/
   sablonlar/vekilekip.json      mola denetiminin ve canlı kapısının ayarı
   sablonlar/ornekler/           kurulmayan örnekler: sır koruma kancası, rol kancası, onay kancası, yayın kilidi ve testleri
   ornek/                        doldurulmuş örnek: durum, karar, görev, vekil raporu (uydurma bir proje)
-  README.en.md                  İngilizce özet
+  README.en.md                  bu kılavuzun İngilizcesi
+  QUICKSTART.en.md              hızlı kurulumun İngilizcesi
+  USAGE.en.md                   kullanım talimatının İngilizcesi
+  MEASUREMENT-LOG.en.md         ölçüm günlüğünün İngilizcesi
   OLCUM-GUNLUGU.md              ölçüm günlüğü: ilk giriş 4 Aralık 2026, sonra üç cuma
-  tanitim/                      60 saniyelik tanıtım videosu (İngilizce ve Türkçe) ve kapak görseli
+  tanitim/                      60 saniyelik tanıtım videosu (İngilizce ve Türkçe)
   LICENSE                       MIT
 ```
 

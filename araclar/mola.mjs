@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /* global process, console */
-// VekilEkip mola denetimi. Bağımlılık yok; Node 18 ve üstü yeter.
+// TR: VekilEkip mola denetimi. Bağımlılık yok; Node 18 ve üstü yeter.
 //
 // Bu komut hiçbir süreci öldürmez. Oturumlar kendi işini durdurur; komut yalnız denetler ve durumu bir JSON
 // dosyasına yazar.
@@ -25,6 +25,33 @@
 //
 // Platform: macOS ve Linux'ta denendi. Windows'ta süreç denetimi PowerShell ile yapılır (çalışma klasörü
 // okunamaz; süreç, komut satırında kopyanın yolu geçiyorsa o kopyaya sayılır). Windows yolu DENENMEDİ; WSL önerilir.
+//
+// EN: VekilEkip (ProxyTeam) break check. No dependencies; Node 18 or later is enough.
+//
+// This command never kills a process. Sessions stop their own work; the command only checks and writes the state
+// to a JSON file.
+//
+//   node araclar/mola.mjs [mola]     Is it safe to stop? If so the record becomes "molada" (on break), exit 0.
+//                                    If not, it lists line by line what has to stop, exit 1.
+//   node araclar/mola.mjs bitti      The record becomes "çalışıyor" (working). Checks whether the working copies are
+//                                    at the commit recorded when the break started. Prints any difference, exit 1.
+//
+// Options: --kok <path> (repository to check; default is the repository of the current folder),
+//          --ayar <path> (config file; default is .vekilekip.json in the main working copy).
+// Exit codes: 0 safe, 1 not safe, 2 usage or config error.
+//
+// What is checked:
+//   - that every working copy (git worktree list) is clean, plus its branch and commit,
+//   - commits not pushed to the remote (warning; a local commit is not lost, the break is not blocked),
+//   - processes listed in the config that are still running (blocker),
+//   - unrecognized processes running inside the working copies (info),
+//   - a deploy lock (blocker: a deploy is never cut off halfway),
+//   - a handoff note (default docs/DURUM.md) that was not committed recently (warning; the config can make it a blocker),
+//   - stashed work (git stash) (warning: the break check cannot see it).
+//
+// Platform: tried on macOS and Linux. On Windows the process check uses PowerShell (the working directory cannot be
+// read; a process is attributed to a working copy if that copy's path appears in its command line). The Windows path
+// is NOT TESTED; WSL is recommended.
 import { execFileSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
@@ -54,9 +81,12 @@ export const VARSAYILAN_AYAR = Object.freeze({
   ],
   bilinmeyenleriYaz: true,
   // Devir notu: bu dosya son "dakika" içinde commit edilmediyse uyarı (engel: true ise mola engellenir).
+  // EN: Handoff note: warn if this file was not committed within the last "dakika" minutes (engel: true blocks the break).
   devirNotu: { dosya: "docs/DURUM.md", dakika: 30, engel: false },
   // Canlıya çıkış yetkisi (araclar/canli.mjs okur): "sahip" = proje sahibinin onayı gerekir, "vekil" = vekil karar verir.
   // mesajlaOnay: true ise proje sahibi bir oturuma "canlı onay <commit>" yazarak da onay verebilir (kanca-onay.mjs kuruluysa).
+  // EN: Production deploy authority (read by araclar/canli.mjs): "sahip" = the owner's approval is required, "vekil" = the proxy decides.
+  // mesajlaOnay: if true, the owner can also approve by typing "canlı onay <commit>" into a session (when kanca-onay.mjs is installed).
   canli: { yetki: "sahip", onay: "yerel/canli-onay.json", gecerlilikSaat: 24, dal: "main", mesajlaOnay: false },
 });
 
@@ -65,6 +95,9 @@ const AYAR_ANAHTARLARI = new Set([...Object.keys(VARSAYILAN_AYAR), "_aciklama"])
 /**
  * Ayar dosyasının içeriğini varsayılanla birleştirir ve kalıpları derler.
  * Verilen alan varsayılanın yerine geçer (listeler birleşmez). Hata varsa fırlatır.
+ *
+ * EN: Merges the config file's content with the defaults and compiles the patterns.
+ * A given field replaces the default (lists are not merged). Throws on error.
  */
 export function ayariHazirla(ham = {}) {
   if (ham === null || typeof ham !== "object" || Array.isArray(ham)) throw new Error("ayar bir JSON nesnesi olmalı");
@@ -113,7 +146,7 @@ function derle(kalip, yer) {
   }
 }
 
-/** Komut satırı argümanlarını çözer. */
+/** Komut satırı argümanlarını çözer. / EN: Parses the command line arguments. */
 export function argumanlariCoz(argv) {
   const secenek = { komut: "mola", kok: null, ayar: null };
   const kalan = [];
@@ -135,7 +168,7 @@ export function argumanlariCoz(argv) {
   return secenek;
 }
 
-/** `git worktree list --porcelain` çıktısını kopyalara ayırır. */
+/** `git worktree list --porcelain` çıktısını kopyalara ayırır. / EN: Splits `git worktree list --porcelain` output into working copies. */
 export function kopyalariAyristir(metin) {
   const kopyalar = [];
   for (const blok of metin.split(/\n\s*\n/)) {
@@ -155,7 +188,10 @@ export function kopyalariAyristir(metin) {
   return kopyalar;
 }
 
-/** Bir yolun hangi kopyanın içinde olduğunu verir (en uzun eşleşme; ad öneki karışmaz). */
+/**
+ * Bir yolun hangi kopyanın içinde olduğunu verir (en uzun eşleşme; ad öneki karışmaz).
+ * EN: Returns the working copy that contains a path (longest match, so a shared name prefix cannot cause a false hit).
+ */
 export function kopyasi(yol, kopyalar) {
   if (!yol) return null;
   let bulunan = null;
@@ -165,7 +201,10 @@ export function kopyasi(yol, kopyalar) {
   return bulunan;
 }
 
-/** Komut satırından sürecin tanımını bulur: { ad, kapsam }, yoksayılacaksa "yoksay", tanınmıyorsa null. */
+/**
+ * Komut satırından sürecin tanımını bulur: { ad, kapsam }, yoksayılacaksa "yoksay", tanınmıyorsa null.
+ * EN: Looks up a process by its command line: { ad, kapsam }, "yoksay" if it should be ignored, null if unknown.
+ */
 export function surecTanimi(komut, ayar) {
   if (ayar.yoksay.some((k) => k.test(komut))) return "yoksay";
   return ayar.surecler.find((s) => s.kalip.test(komut)) ?? null;
@@ -177,6 +216,12 @@ export function surecTanimi(komut, ayar) {
  * haric: denetimin kendisi ve ataları.
  * "her-yer" kapsamlı süreç hangi klasörde olursa olsun engeldir; öbürleri yalnız bir kopyanın içindeyse sayılır.
  * Kopyanın içinde çalışan, tanınmayan süreç bilgi olarak yazılır.
+ *
+ * EN: Classifies processes.
+ * surecler: [{ pid, pgid, komut, cwd }]; bilgiGruplari: group ids of the processes listening on the info ports;
+ * haric: the check itself and its ancestors.
+ * A process with scope "her-yer" (anywhere) is a blocker whatever folder it runs in; the others count only when they
+ * are inside a working copy. An unrecognized process running inside a working copy is reported as info.
  */
 export function surecleriSiniflandir(surecler, kopyalar, ayar, bilgiGruplari = new Set(), haric = new Set()) {
   const engeller = [];
@@ -184,7 +229,7 @@ export function surecleriSiniflandir(surecler, kopyalar, ayar, bilgiGruplari = n
   const bilinmeyenler = [];
   for (const s of surecler) {
     if (haric.has(s.pid)) continue;
-    const duzKomut = s.komut.replace(/\\/g, "/"); // Windows yolları da "/" kalıplarıyla eşleşsin
+    const duzKomut = s.komut.replace(/\\/g, "/"); // Windows yolları da "/" kalıplarıyla eşleşsin / EN: so Windows paths match the "/" patterns too
     const tanim = surecTanimi(duzKomut, ayar);
     if (tanim === "yoksay") continue;
     const k = kopyasi(s.cwd, kopyalar) ?? kopyalar.find((x) => duzKomut.includes(x.yol + "/")) ?? null;
@@ -207,6 +252,9 @@ function kisalt(metin, en = 80) {
 /**
  * Yayın kilidini değerlendirir. icerik: kilit dosyasının metni ya da null; yasiyor(pid) → boolean.
  * Kilit biçimi: "pid=<sayı> surum=<metin> ..." (yayın betiği yazar, bitince siler).
+ *
+ * EN: Evaluates the deploy lock. icerik: the lock file's text or null; yasiyor(pid) → boolean.
+ * Lock format: "pid=<number> surum=<text> ..." (the deploy script writes it and deletes it when done).
  */
 export function kilitDurumu(icerik, yasiyor) {
   if (icerik == null) return null;
@@ -216,7 +264,10 @@ export function kilitDurumu(icerik, yasiyor) {
   return `yayın kilidi kalmış (sürüm ${surum}, süreç yok): yayın yarıda kalmış olabilir; ortamı denetle, sonra kilidi sil`;
 }
 
-/** Süreçleri tür ve kopyaya göre toplar: "vite çalışıyor (kopya)" → [pid, ...]. */
+/**
+ * Süreçleri tür ve kopyaya göre toplar: "vite çalışıyor (kopya)" → [pid, ...].
+ * EN: Groups processes by kind and working copy: "vite çalışıyor (kopya)" → [pid, ...].
+ */
 export function grupla(surecler) {
   const gruplar = new Map();
   for (const s of surecler) {
@@ -226,7 +277,7 @@ export function grupla(surecler) {
   return gruplar;
 }
 
-/** Bütün bulgulardan kararı çıkarır. */
+/** Bütün bulgulardan kararı çıkarır. / EN: Turns all the findings into a verdict. */
 export function karar({ kopyalar, kirliler, gonderilmemis, uzakYok = [], surecler, kilitler, devirNotu = null, raf = 0 }, uzak = "origin") {
   const engel = [];
   const uyari = [];
@@ -246,9 +297,12 @@ export function karar({ kopyalar, kirliler, gonderilmemis, uzakYok = [], surecle
 /**
  * Devir notunun tazeliğini değerlendirir. sonCommitSn: dosyanın son commit zamanı (saniye) ya da null;
  * dosyaVar: dosya diskte var mı. Sorun yoksa null, varsa { ileti, engel } döner.
+ *
+ * EN: Evaluates how fresh the handoff note is. sonCommitSn: time of the file's last commit (seconds) or null;
+ * dosyaVar: whether the file exists on disk. Returns null if there is no problem, otherwise { ileti, engel }.
  */
 export function devirNotuDurumu(sonCommitSn, simdiSn, ayar, dosyaVar = true) {
-  if (!dosyaVar && sonCommitSn == null) return null; // projede devir notu dosyası kullanılmıyor
+  if (!dosyaVar && sonCommitSn == null) return null; // projede devir notu dosyası kullanılmıyor / EN: the project does not use a handoff note file
   if (sonCommitSn == null) return { ileti: `${ayar.dosya}: hiç commit edilmemiş; devir notunu yazıp commit et`, engel: ayar.engel };
   const dakika = Math.floor((simdiSn - sonCommitSn) / 60);
   if (dakika <= ayar.dakika) return null;
@@ -256,7 +310,7 @@ export function devirNotuDurumu(sonCommitSn, simdiSn, ayar, dosyaVar = true) {
   return { ileti: `${ayar.dosya}: son commit ${sure} önce; devir notunu güncelleyip commit et`, engel: ayar.engel };
 }
 
-/** PowerShell'in JSON süreç listesini ayrıştırır (Windows). */
+/** PowerShell'in JSON süreç listesini ayrıştırır (Windows). / EN: Parses PowerShell's JSON process list (Windows). */
 export function windowsSurecleriAyristir(metin) {
   let veri;
   try {
@@ -269,7 +323,10 @@ export function windowsSurecleriAyristir(metin) {
     .map((x) => ({ pid: x.ProcessId, ppid: x.ParentProcessId ?? 0, pgid: x.ProcessId, komut: x.CommandLine, cwd: null }));
 }
 
-/** Molaya girerken kaydedilen kopyalarla şimdikileri karşılaştırır. */
+/**
+ * Molaya girerken kaydedilen kopyalarla şimdikileri karşılaştırır.
+ * EN: Compares the working copies recorded at the start of the break with the current ones.
+ */
 export function molaFarki(kayitli, simdiki) {
   const farklar = [];
   for (const k of kayitli) {
@@ -282,7 +339,7 @@ export function molaFarki(kayitli, simdiki) {
   return farklar;
 }
 
-// ---- dış dünya ----
+// ---- dış dünya / EN: outside world ----
 
 function cikti(komut, arg, secenek = {}) {
   try {
@@ -314,7 +371,7 @@ function surecleriOku() {
   for (const satir of cikti("ps", ["-axo", "pid=,pgid=,uid=,command="]).split("\n")) {
     const m = /^\s*(\d+)\s+(\d+)\s+(\d+)\s+(.*)$/.exec(satir);
     if (!m) continue;
-    if (uid !== null && Number(m[3]) !== uid) continue; // yalnız kendi süreçlerimiz
+    if (uid !== null && Number(m[3]) !== uid) continue; // yalnız kendi süreçlerimiz / EN: only our own processes
     surecler.push({ pid: Number(m[1]), pgid: Number(m[2]), komut: m[4], cwd: null });
   }
   if (!surecler.length) return surecler;
@@ -323,12 +380,13 @@ function surecleriOku() {
       try {
         s.cwd = fs.readlinkSync(`/proc/${s.pid}/cwd`);
       } catch {
-        /* erişilemedi */
+        /* erişilemedi / EN: not accessible */
       }
     }
     return surecler;
   }
   // macOS ve öbürleri: çalışma klasörleri tek lsof çağrısıyla.
+  // EN: macOS and others: working directories with a single lsof call.
   const cwd = new Map();
   let pid = 0;
   for (const satir of cikti("lsof", ["-a", "-d", "cwd", "-Fpn", "-p", surecler.map((s) => s.pid).join(",")]).split("\n")) {
@@ -341,7 +399,7 @@ function surecleriOku() {
 
 function bilgiGruplariniOku(surecler, kapilar) {
   const gruplar = new Set();
-  if (process.platform === "win32") return gruplar; // Windows'ta kapı dinleyicisi denetlenmez
+  if (process.platform === "win32") return gruplar; // Windows'ta kapı dinleyicisi denetlenmez / EN: port listeners are not checked on Windows
   for (const kapi of kapilar) {
     for (const p of cikti("lsof", ["-nP", `-iTCP:${kapi}`, "-sTCP:LISTEN", "-t"]).split("\n").filter(Boolean)) {
       const s = surecler.find((x) => x.pid === Number(p));
@@ -351,7 +409,10 @@ function bilgiGruplariniOku(surecler, kapilar) {
   return gruplar;
 }
 
-/** Denetimin kendisi, ataları ve aynı süreç grubundakiler (ör. aynı boru hattındaki `head`). */
+/**
+ * Denetimin kendisi, ataları ve aynı süreç grubundakiler (ör. aynı boru hattındaki `head`).
+ * EN: The check itself, its ancestors and members of the same process group (e.g. `head` in the same pipeline).
+ */
 function haricSurecler() {
   const ebeveyn = new Map();
   const grup = new Map();
@@ -391,7 +452,7 @@ function topla(kok, ayar) {
   const gonderilmemis = [];
   const uzakYok = [];
   const kilitler = [];
-  const gorulenKilitler = new Set(); // yerel/ başka kopyaya bağ olabilir; aynı kilit bir kez yazılır
+  const gorulenKilitler = new Set(); // yerel/ başka kopyaya bağ olabilir; aynı kilit bir kez yazılır / EN: yerel/ may be a link to another copy; the same lock is reported once
   const uzakVar = cikti("git", ["for-each-ref", "--count=1", `refs/remotes/${ayar.uzak}/`], { cwd: kok }).trim() !== "";
   if (!uzakVar && kopyalar.length) uzakYok.push(kopyalar[0].yol);
   for (const k of kopyalar) {
@@ -412,6 +473,7 @@ function topla(kok, ayar) {
   const surecler = surecleriOku();
   const siniflanan = surecleriSiniflandir(surecler, kopyalar, ayar, bilgiGruplariniOku(surecler, ayar.bilgiKapilari), haricSurecler());
   // Devir notu: bütün dallarda dosyaya dokunan son commit.
+  // EN: Handoff note: the last commit touching the file, across all branches.
   const sonNot = Number(cikti("git", ["log", "-1", "--all", "--format=%ct", "--", ayar.devirNotu.dosya], { cwd: kok }).trim()) || null;
   const anaYol = kopyalar[0]?.yol ?? kok;
   const devirNotu = devirNotuDurumu(sonNot, Math.floor(Date.now() / 1000), ayar.devirNotu, fs.existsSync(path.join(anaYol, ayar.devirNotu.dosya)));
@@ -448,6 +510,7 @@ function ana() {
     process.exit(2);
   }
   // Kayıt ve ayar ana kopyada durur (worktree listesinin ilki), komut hangi kopyadan çalışırsa çalışsın.
+  // EN: The record and the config live in the main working copy (first in the worktree list), whichever copy the command runs from.
   const anaKopya = kopyalariAyristir(cikti("git", ["worktree", "list", "--porcelain"], { cwd: kok }))[0]?.yol ?? kok;
   const ayarYolu = secenek.ayar ? path.resolve(secenek.ayar) : path.join(anaKopya, AYAR_DOSYASI);
   let ayar;
@@ -473,7 +536,7 @@ function ana() {
     try {
       onceki = JSON.parse(fs.readFileSync(kayitYolu, "utf8"));
     } catch {
-      /* kayıt yok */
+      /* kayıt yok / EN: no record */
     }
     const farklar =
       onceki?.durum === "molada" && Array.isArray(onceki.kopyalar)

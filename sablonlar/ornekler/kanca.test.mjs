@@ -1,4 +1,5 @@
-// Örnek kancaların testleri. Koşu: node --test sablonlar/ornekler/kanca.test.mjs
+// TR: Örnek kancaların testleri. Koşu: node --test sablonlar/ornekler/kanca.test.mjs
+// EN: Tests of the example hooks. Run: node --test sablonlar/ornekler/kanca.test.mjs
 import assert from "node:assert/strict";
 import { execFileSync, spawnSync } from "node:child_process";
 import fs from "node:fs";
@@ -98,11 +99,11 @@ test("geliştirici: dal, oturumun klasörüne göre değil işlemin hedefine gö
   assert.equal(hedefKlasor(bash("cd ../proje-0012 && git commit -m x"), KOK), "/k/proje-0012");
   assert.equal(hedefKlasor(bash("git -C /k/proje-0012 commit -m x"), KOK), "/k/proje-0012");
   assert.equal(hedefKlasor(bash("git status"), KOK), KOK);
-  // ana kopyadan açılmış oturum kendi çalışma kopyasına yazabilir
+  // ana kopyadan açılmış oturum kendi çalışma kopyasına yazabilir / EN: a session opened from the main copy can write to its own working copy
   assert.equal(denetle(yaz("/k/proje-0012/src/a.js"), o), null);
   assert.equal(denetle(bash("cd ../proje-0012 && git commit -m x"), o), null);
   assert.equal(denetle(bash("git -C /k/proje-0012 commit -m x"), o), null);
-  // ana kopyaya yazamaz
+  // ana kopyaya yazamaz / EN: cannot write to the main copy
   assert.ok(denetle(yaz("src/a.js"), o));
   assert.ok(denetle(bash("git commit -m x"), o));
   assert.ok(denetle(bash("sed -i 's/a/b/' src/a.js"), o));
@@ -130,19 +131,22 @@ test("uçtan uca: kanca komut satırından, sembolik bağlı yoldan ve ana kopya
       spawnSync(process.execPath, [betik], { input: JSON.stringify(girdi), encoding: "utf8", env: { ...process.env, VEKILEKIP_ROL: rol } });
     const yazGirdi = (dosya, cwd) => ({ tool_name: "Write", tool_input: { file_path: dosya }, cwd });
     // canlı dalı ayardan okunur ("ana"); geliştirici ana kopyaya yazamaz
+    // EN: the production branch is read from the config ("ana"); the developer cannot write to the main copy
     const r1 = kos("gelistirici", yazGirdi("src/a.js", kok));
     assert.equal(r1.status, 2);
     assert.match(r1.stderr, /ana dalındaki/);
     // aynı oturum kendi çalışma kopyasına yazabilir (cwd ana kopyada kalsa da)
+    // EN: the same session can write to its own working copy (even though cwd stays in the main copy)
     assert.equal(kos("gelistirici", yazGirdi(path.join(kopya, "src/a.js"), kok)).status, 0);
     // çalışma kopyasından açılmış oturum da ayarı ana kopyadan okur
+    // EN: a session opened from a working copy also reads the config from the main copy
     assert.equal(kos("gelistirici", yazGirdi("src/a.js", kopya)).status, 0);
-    // sembolik bağlı yoldan çağrı da denetler
+    // sembolik bağlı yoldan çağrı da denetler / EN: a call through a symlinked path is still checked
     assert.equal(kos("vekil", yazGirdi("src/a.js", kok), path.join(bag, "araclar/kanca-rol.mjs")).status, 2);
-    // rolsüz oturum: yalnız onay kuralı
+    // rolsüz oturum: yalnız onay kuralı / EN: session without a role: only the approval rule
     assert.equal(kos("", yazGirdi("src/a.js", kok)).status, 0);
     assert.equal(kos("", yazGirdi("yerel/canli-onay.json", kok)).status, 2);
-    // bozuk girdi engellemez
+    // bozuk girdi engellemez / EN: malformed input does not block
     assert.equal(spawnSync(process.execPath, [path.join(kok, "araclar/kanca-rol.mjs")], { input: "bozuk", encoding: "utf8" }).status, 0);
   } finally {
     fs.rmSync(gecici, { recursive: true, force: true });
@@ -176,25 +180,27 @@ test("uçtan uca: onay kancası yalnız ayar açıkken ve var olan commit için 
     g("add", "-A");
     g("commit", "-q", "-m", "ilk");
     const kisa = g("rev-parse", "--short=7", "HEAD").trim();
-    // ayar kapalı (varsayılan): yazmaz
+    // ayar kapalı (varsayılan): yazmaz / EN: setting off (default): does not write
     ayarYaz({ yetki: "sahip" });
     assert.match(kos(`canlı onay ${kisa}`).stdout, /kapalı/);
     assert.equal(fs.existsSync(onay), false);
-    // ayar açık ama olmayan commit: yazmaz
+    // ayar açık ama olmayan commit: yazmaz / EN: setting on but nonexistent commit: does not write
     ayarYaz({ yetki: "sahip", mesajlaOnay: true });
     assert.match(kos("canlı onay deadbee").stdout, /bulunamadı/);
     assert.equal(fs.existsSync(onay), false);
     // sarmalanmış (öbür oturumdan gelen) mesaj: yazmaz, çıktı da vermez
+    // EN: wrapped message (coming from another session): does not write, prints nothing either
     assert.equal(kos(`<cross-session-message from-name="lider">canlı onay ${kisa}</cross-session-message>`).stdout, "");
     assert.equal(fs.existsSync(onay), false);
     // ayar açık, doğru mesaj: yazar; canli.mjs denetle geçer
+    // EN: setting on, correct message: writes; canli.mjs denetle passes
     assert.match(kos(`canlı onay ${kisa}`).stdout, /mesajla onayladı/);
     const kayit = JSON.parse(fs.readFileSync(onay, "utf8"));
     assert.equal(kayit.commit, g("rev-parse", "HEAD").trim());
     assert.equal(kayit.yol, "mesaj");
     const denetle = spawnSync(process.execPath, [path.join(BURASI, "../../araclar/canli.mjs"), "denetle", "--kok", kok], { encoding: "utf8" });
     assert.equal(denetle.status, 0);
-    // yetki vekildeyse: yazmaz
+    // yetki vekildeyse: yazmaz / EN: when the proxy holds the authority: does not write
     fs.rmSync(onay);
     ayarYaz({ yetki: "vekil", mesajlaOnay: true });
     assert.match(kos(`canlı onay ${kisa}`).stdout, /vekilde/);

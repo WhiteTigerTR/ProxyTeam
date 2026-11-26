@@ -1,8 +1,10 @@
 # Kullanım talimatı: var olan bir klasöre adım adım kurulum
 
+[English](USAGE.en.md) · Türkçe
+
 Bu talimat gerçek bir kurulumdan çıkarıldı. Senaryo: içinde notlar, yedekler ve belgeler olan, henüz git deposu olmayan bir çalışma klasörü; tek Claude hesabı; üç oturum (vekil, lider, geliştirici).
 
-[HIZLI-BASLANGIC.md](HIZLI-BASLANGIC.md) boş ya da zaten git deposu olan bir projeyi varsayar. Klasörünüz doluysa ya da git deposu değilse bu talimatı izleyin. Yöntemin ne olduğunu ve neden işe yaradığını [README.md](README.md) anlatır.
+[HIZLI-BASLANGIC.md](HIZLI-BASLANGIC.md) boş ya da zaten git deposu olan bir projeyi varsayar. Klasörünüz doluysa ya da git deposu değilse bu talimatı izleyin. Yöntemin ne olduğunu ve neden işe yaradığını [README.tr.md](README.tr.md) anlatır.
 
 Toplam süre yaklaşık 15 dakikadır. Her adımda şunlar yazılıdır: ne yazacağınız, ne görmeniz gerektiği ve bir şey ters giderse ne yapacağınız.
 

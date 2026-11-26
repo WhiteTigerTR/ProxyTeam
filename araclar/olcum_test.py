@@ -1,4 +1,7 @@
-"""Ölçüm cetvelinin testleri. Koşu: python3 araclar/olcum_test.py"""
+"""TR: Ölçüm cetvelinin testleri. Koşu: python3 araclar/olcum_test.py
+
+EN: Tests of the measurement script. Run: python3 araclar/olcum_test.py
+"""
 import datetime as dt, json, os, subprocess, sys, tempfile, unittest
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -8,7 +11,7 @@ BURASI = os.path.dirname(os.path.abspath(__file__))
 
 
 def z(dakika):
-    """2026-01-05 10:00 UTC'den itibaren dakika → ISO zaman."""
+    """2026-01-05 10:00 UTC'den itibaren dakika → ISO zaman. / EN: Minutes after 2026-01-05 10:00 UTC → ISO timestamp."""
     return (dt.datetime(2026, 1, 5, 10, 0, tzinfo=dt.timezone.utc) + dt.timedelta(minutes=dakika)).strftime("%Y-%m-%dT%H:%M:%S.000Z")
 
 
@@ -50,15 +53,19 @@ class UctanUca(unittest.TestCase):
             insan = lambda d, t: {"type": "user", "timestamp": z(d), "message": {"role": "user", "content": t}}
             yanit = lambda d: {"type": "assistant", "timestamp": z(d), "message": {"id": f"m{d}", "content": [], "usage": {"input_tokens": 1, "output_tokens": 2}}}
             # vekil: sahip 0. ve 5. dakikada yazar, vekil 0-6 arası çalışır; rol istemi sayılmaz
+            # EN: proxy: the owner writes at minutes 0 and 5, the proxy works from 0 to 6; the role prompt is not counted
             v = kayit("vekil.jsonl", [insan(-1, "Sen bu projede vekil rolündesin. ..."), insan(0, "başla"), yanit(1), insan(5, "devam"), yanit(6)])
             # geliştirici: 30-50 arası çalışır (sahip yokken)
+            # EN: developer: works from 30 to 50 (while the owner is away)
             g = kayit("gel.jsonl", [yanit(30), yanit(38), yanit(46), yanit(50), yanit(200)])
             # alt ajan kaydı: görev metni sahibin mesajı değildir; ayar satırı etkinlik sayılmaz
+            # EN: subagent log: the task text is not an owner message; a settings line is not activity
             alt = {"type": "user", "timestamp": z(60), "isSidechain": True, "message": {"role": "user", "content": "Bağımsız bir gözden geçirici olarak çalışıyorsun."}}
             alt_sonuc = {"type": "user", "timestamp": z(60), "isSidechain": True, "message": {"role": "user", "content": [{"type": "tool_result", "content": "x"}]}}
             ayar = {"type": "mode", "timestamp": z(90)}
             gl = kayit("gel-alt.jsonl", [alt, alt_sonuc, ayar])
             # başka biçimde rol istemi: proje sahibinin mesajı sayılmaz
+            # EN: a role prompt in a different form: not counted as an owner message
             g2 = kayit("gel2.jsonl", [insan(70, "Sen Proje-Gelistirici oturumusun. Önce git log -5 ...")])
             c = subprocess.run(
                 [sys.executable, "-I", os.path.join(BURASI, "olcum.py"), "--kod", "DENEME", "--json", "--bas", z(-2), "--bit", z(100), "--depo", k, f"vekil={v}", f"gelistirici={g}", f"gelistirici={gl}", f"gelistirici={g2}"],
@@ -68,14 +75,15 @@ class UctanUca(unittest.TestCase):
             self.assertEqual(r["vekil"]["rol_istemi"], 1)
             self.assertEqual(r["vekil"]["insan_mesaji"], 2)
             self.assertEqual(r["proje_sahibi"]["etkin_dakika"], 8)  # 0-5, +3
-            self.assertEqual(r["gelistirici"]["alt_ajan_gorevi"], 1)  # araç sonucu sayılmaz
+            self.assertEqual(r["gelistirici"]["alt_ajan_gorevi"], 1)  # araç sonucu sayılmaz / EN: a tool result is not counted
             self.assertEqual(r["gelistirici"]["rol_istemi"], 1)
             self.assertEqual(r["proje_sahibi"]["insan_mesaji"], 2)
-            self.assertEqual(r["gelistirici"]["etkin_dakika"], 21 + 1 + 1)  # 30-50, alt ajan 60, istem 70 (her biri +1); 200 --bit sonrası, 90 ayar satırı
+            self.assertEqual(r["gelistirici"]["etkin_dakika"], 21 + 1 + 1)  # 30-50, alt ajan 60, istem 70 (her biri +1); 200 --bit sonrası, 90 ayar satırı / EN: 30-50, subagent at 60, prompt at 70 (+1 each); 200 is after --bit, 90 is a settings line
             self.assertEqual(r["zaman"]["takvim_dakika"], 102)
             self.assertEqual(r["zaman"]["sahip_etkin_dakika"], 8)
-            self.assertEqual(r["zaman"]["ekip_etkin_dakika"], 8 + 21 + 1 + 1)  # vekil -1..7, gel 30..51, alt ajan 60..61, istem 70..71
+            self.assertEqual(r["zaman"]["ekip_etkin_dakika"], 8 + 21 + 1 + 1)  # vekil -1..7, gel 30..51, alt ajan 60..61, istem 70..71 / EN: proxy -1..7, developer 30..51, subagent 60..61, prompt 70..71
             # vekil -1..0 (sahip daha yazmamış) + geliştirici 30..51 + alt ajan 60..61
+            # EN: proxy -1..0 (the owner has not written yet) + developer 30..51 + subagent 60..61
             self.assertEqual(r["zaman"]["sahip_yokken_ekip_dakika"], 1 + 21 + 1 + 1)
 
     def test_uzun_arac_cagrisi_calisma_sayilir_soru_beklemesi_sayilmaz(self):
@@ -92,10 +100,12 @@ class UctanUca(unittest.TestCase):
             self.assertEqual(r["lider"]["uzun_arac"], 1)
             self.assertEqual(r["lider"]["uzun_arac_dakika"], 40)
             # 0..40 araç + 1; soru beklemesi 300..340 sayılmaz, yalnız iki olay (+1 ve +1)
+            # EN: tool 0..40, plus 1; the wait on a question (300..340) is not counted, only its two events (+1 and +1)
             self.assertEqual(r["lider"]["etkin_dakika"], 41 + 1 + 1)
             z_ = r["zaman"]
             self.assertEqual(z_["takvim_dakika"], 340)
             # boşluklar: 41..300 (259 dk, 3 saatten uzun) ve 301..340 (39 dk)
+            # EN: gaps: 41..300 (259 min, over 3 hours) and 301..340 (39 min)
             self.assertEqual(z_["ekip_bosta_3sa_ustu_dakika"], 259)
             self.assertEqual(z_["ekip_bosta_60dk_alti_dakika"], 39)
             self.assertEqual(z_["ekip_bosta_1_3sa_dakika"], 0)

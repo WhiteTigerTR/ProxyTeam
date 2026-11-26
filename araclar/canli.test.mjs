@@ -1,4 +1,5 @@
-// Canlıya çıkış kapısının testleri. Koşu: node --test araclar/canli.test.mjs
+// TR: Canlıya çıkış kapısının testleri. Koşu: node --test araclar/canli.test.mjs
+// EN: Tests of the production deploy gate. Run: node --test araclar/canli.test.mjs
 import assert from "node:assert/strict";
 import { execFileSync, spawnSync } from "node:child_process";
 import fs from "node:fs";
@@ -45,19 +46,19 @@ function depoKur(ayar) {
 const kos = (kok, ...arg) => spawnSync(process.execPath, [CANLI, ...arg, "--kok", kok], { encoding: "utf8" });
 
 test("uçtan uca: sahip yetkisinde onaysız çıkılmaz, onayla çıkılır, tüketilince yine çıkılmaz", () => {
-  const { kok, commit } = depoKur(null); // varsayılan: sahip
+  const { kok, commit } = depoKur(null); // varsayılan: sahip / EN: default: owner
   try {
     assert.equal(kos(kok, "denetle").status, 1);
-    // oturum gibi (etkileşimsiz) onay verilemez
+    // oturum gibi (etkileşimsiz) onay verilemez / EN: a non-interactive caller, such as a session, cannot approve
     const o = kos(kok, "onayla");
     assert.equal(o.status, 1);
     assert.match(o.stderr, /etkileşimli/);
     assert.equal(fs.existsSync(path.join(kok, "yerel/canli-onay.json")), false);
-    // proje sahibinin verdiği onay
+    // proje sahibinin verdiği onay / EN: approval given by the owner
     fs.mkdirSync(path.join(kok, "yerel"), { recursive: true });
     fs.writeFileSync(path.join(kok, "yerel/canli-onay.json"), JSON.stringify({ commit, zaman: new Date().toISOString() }));
     assert.equal(kos(kok, "denetle").status, 0);
-    // yeni commit gelince eski onay geçmez
+    // yeni commit gelince eski onay geçmez / EN: a new commit invalidates the old approval
     fs.writeFileSync(path.join(kok, "x.txt"), "x");
     execFileSync("git", ["add", "-A"], { cwd: kok });
     execFileSync("git", ["commit", "-q", "-m", "ikinci"], { cwd: kok });

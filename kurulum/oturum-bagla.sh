@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# VekilEkip: çok hesaplı düzende oturumları birbirine gösterir. İSTEĞE BAĞLI.
+# TR: VekilEkip: çok hesaplı düzende oturumları birbirine gösterir. İSTEĞE BAĞLI.
 #
 # Ne yapar: Claude Code her açık oturum için yapılandırma klasöründe bir kayıt tutar
 # (<klasör>/sessions/<pid>.json ve <pid>.key). Bu betik canlı oturumların kayıtlarını öbür klasörlere
@@ -15,6 +15,23 @@
 #
 # Her yeni oturum açıldıktan sonra bir kez çalıştırılır. Yan etkisi yalnız sessions/ klasörlerindedir;
 # tekrar çalıştırılabilir. Temizlik yalnız bu betiğin kurduğu ve süreci ölmüş bağları siler.
+#
+# EN: VekilEkip (ProxyTeam): makes sessions visible to each other in a multi-account setup. OPTIONAL.
+#
+# What it does: Claude Code keeps a record for every open session in its config folder
+# (<folder>/sessions/<pid>.json and <pid>.key). This script hard-links the records of live sessions into the
+# other folders, so a session on one account sees the other account's sessions in its list and can message them.
+#
+# WARNING: this relies on an undocumented internal of Claude Code. A version update may break it.
+# If it breaks, the rest of the method keeps working: work between sessions goes through files in the repository.
+# If you use a single account you do not need this script.
+#
+# Usage:
+#   bash oturum-bagla.sh ~/.claude ~/.claude-k2 [more folders ...]
+#   bash oturum-bagla.sh --dene ~/.claude ~/.claude-k2      # dry run: only prints what it would do
+#
+# Run it once after each new session is opened. Its only side effects are in the sessions/ folders, and it is
+# safe to run again. Cleanup removes only links this script created whose process is dead.
 set -euo pipefail
 
 DENE=0
@@ -46,6 +63,8 @@ pid_yasiyor() {
 
 # Bu betiğin kurduğu bağlar her klasörde bir listede tutulur (sessions/.vekilekip-baglar).
 # Temizlik yalnız bu listedeki ve süreci ölmüş kayıtları siler; Claude Code'un kendi kayıtlarına dokunmaz.
+# EN: Links created by this script are tracked in a list in each folder (sessions/.vekilekip-baglar).
+# Cleanup removes only entries on that list whose process is dead; it never touches Claude Code's own records.
 LISTE=".vekilekip-baglar"
 
 temizle() {
@@ -53,7 +72,7 @@ temizle() {
   [ -f "$d/$LISTE" ] || return 0
   while IFS= read -r satir || [ -n "$satir" ]; do
     [ -n "$satir" ] || continue
-    case "$satir" in */* | .*) continue ;; esac # yalnız düz dosya adı
+    case "$satir" in */* | .*) continue ;; esac # yalnız düz dosya adı / EN: plain file names only
     pid="${satir%%.*}"
     if pid_yasiyor "$pid" && [ -e "$d/$satir" ]; then
       kalan="$kalan$satir"$'\n'
@@ -65,6 +84,7 @@ temizle() {
 }
 
 # Kaynaktaki canlı kayıtları hedefe hard link olarak bağlar.
+# EN: Hard-links the live records in the source into the target.
 bagla() {
   local f n pid
   for f in "$1"/*.json "$1"/*.key; do

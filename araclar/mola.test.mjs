@@ -1,5 +1,8 @@
-// Mola denetiminin testleri. Koşu: node --test araclar/mola.test.mjs
+// TR: Mola denetiminin testleri. Koşu: node --test araclar/mola.test.mjs
 // Uçtan uca test geçici bir git deposu kurar (işletim sisteminin geçici klasöründe) ve sonunda siler.
+//
+// EN: Tests of the break check. Run: node --test araclar/mola.test.mjs
+// The end-to-end test sets up a temporary git repository (in the operating system's temp folder) and deletes it at the end.
 import assert from "node:assert/strict";
 import { execFileSync, spawnSync } from "node:child_process";
 import fs from "node:fs";
@@ -172,7 +175,7 @@ test("mola bitti: kaydedilen commit, dal ve kopya karşılaştırması", () => {
   assert.match(molaFarki([{ yol: "/a", dal: "x", commit: "1" }], [{ yol: "/a", dal: "y", commit: "1" }])[0], /dal x kaydedilmişti, şimdi y/);
 });
 
-// ---- uçtan uca: gerçek git deposu ----
+// ---- uçtan uca: gerçek git deposu / EN: end to end: a real git repository ----
 
 function git(cwd, ...arg) {
   return execFileSync("git", ["-c", "user.name=deneme", "-c", "user.email=deneme@ornek.com", "-c", "core.hooksPath=/dev/null", "-c", "commit.gpgsign=false", ...arg], {
@@ -194,6 +197,7 @@ test("uçtan uca: temiz, kirli, kilit, mola bitti, molada commit", (t) => {
   fs.mkdirSync(depo);
   git(depo, "init", "-q", "-b", "main");
   // Süreç kalıbı yok: makinede çalışan başka işler testi etkilemesin. yerel/ git dışında.
+  // EN: No process patterns, so other work running on the machine does not affect the test. yerel/ is outside git.
   fs.writeFileSync(path.join(depo, ".vekilekip.json"), JSON.stringify({ surecler: [], bilinmeyenleriYaz: false }));
   fs.writeFileSync(path.join(depo, ".gitignore"), "yerel/\n");
   fs.writeFileSync(path.join(depo, "a.txt"), "1\n");

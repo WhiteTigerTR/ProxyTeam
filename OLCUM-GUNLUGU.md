@@ -1,13 +1,10 @@
 # Ölçüm günlüğü
 
+[English](MEASUREMENT-LOG.en.md) · Türkçe
+
 Bu yöntemin tek oturumla çalışan bir insana göre neye mal olduğu ve ne kazandırdığı henüz bilinmiyor.
 Bu sayfa o sorunun yanıtını biriktirir. **İlk ölçüm girişi 4 Aralık 2026 Cuma günü, sonraki üç giriş izleyen üç cuma (11, 18 ve 25 Aralık 2026) yayımlanır.**
 Ölçüm bu dört girişle, yaklaşık bir ayda tamamlanır; son girişte sonuç özetlenir.
-
-English: the first measurement entry is published on Friday 4 December 2026, and the next three on the following
-Fridays (11, 18 and 25 December 2026). The measurement ends with those four entries, about one month; the last entry sums up the result. The question it
-tries to answer: what does this way of working cost, and what does it gain, compared with one person working in a
-single session?
 
 ## Nasıl ölçülüyor
 

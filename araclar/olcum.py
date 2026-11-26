@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""VekilEkip ölçüm cetveli: oturum kayıtlarından ve git geçmişinden yalnız sayı çıkarır.
+"""TR: VekilEkip ölçüm cetveli: oturum kayıtlarından ve git geçmişinden yalnız sayı çıkarır.
 
 Kişisel veri yazmaz: mesaj metni, ad, adres ya da dosya içeriği çıktıya girmez.
 
@@ -47,6 +47,56 @@ Zaman (bölüm "zaman"): hepsi dakika, hepsi tahmin.
 Rapor etiketleri (isteğe bağlı, doğruluğu artırır): lider raporunun ilk sözcüğü
 RAPOR, SORU, BİLGİ ya da DÜZELTME. Karar cümleleri "Vekil kararı", "Lider kararı"
 ya da "Proje sahibi" kalıbıyla başlar.
+
+EN: VekilEkip (ProxyTeam) measurement script. It derives numbers, and nothing else, from session logs and git history.
+
+No personal data is written: message text, names, addresses and file contents never reach the output.
+
+Usage:
+  python3 -I olcum.py --kod ATLAS --bas 2026-11-23T00:00:00+03:00 --depo ~/project \\
+      vekil=~/.claude-k2/projects/<project>/<session>.jsonl \\
+      lider=~/.claude-k2/projects/<project>/<session>.jsonl \\
+      gelistirici=~/.claude/projects/<project>/<session>.jsonl
+You can pass several files for the same role (a new session after a context reset).
+
+--kod: a code name for the project (e.g. ATLAS, KUZEY). The output never contains the project name, folder or file
+paths, only the code name. Only the owner knows which code name maps to which project; the mapping is not written
+to this kit or to the project. --json: print one line of JSON so the output of several projects can be combined
+(the birlestir subcommand merges them):
+  python3 -I olcum.py birlestir a.json b.json
+
+Token counts: summed from the usage fields in each role's session log (input, output, cache write, cache read).
+One response can be split across several log lines, so responses are deduplicated by response id. Subagent usage
+is counted if it is logged in the same file; if it is in a separate file, pass that file under the same role too.
+No cost is calculated: prices vary by model and plan, and token counts are enough for comparison.
+
+Pattern-based numbers (if a pattern was never used the count is 0, not an error):
+  - role: the sender name of a cross-session message must contain "vekil", "lider" or "gelistirici"; any other name counts as "diger".
+  - birlestirme (merge): a commit whose subject starts with "Birleştirme". canli_yukseltme (production promotion): a
+    commit whose subject contains "canlıya yükseltme" or starts with "Durum: canlı <short id>". yarim_commit
+    (work-in-progress commit): subject contains "yarım". yan_kol (side branch): subject contains "yan kol".
+  - vekil_karari / lider_karari: the message contains "Vekil kararı" / "Lider kararı" (proxy decision / lead decision).
+  - Pasted role prompts are not counted as owner messages; they are counted separately as rol_istemi. The default
+    pattern matches a message starting with "Sen ... rolündesin" or "Sen ... oturumusun"; if yours differs, pass --istem '<regex>'.
+  - Subagent logs (lines with isSidechain: true) can be passed in: their activity and tokens are added to the role, and
+    the task text inside them is not counted as an owner message (it is counted separately as alt_ajan_gorevi).
+
+Time (section "zaman"): all in minutes, all estimates.
+  - takvim (calendar): from --bas to the last event (or --bit).
+  - sahip_etkin (owner active): from the owner's messages; gaps under 20 minutes count as work, a lone message as 3 minutes.
+  - active time per role ("etkin_dakika" in each role's section): from the message and response lines in that role's
+    logs; gaps under 10 minutes count as work. In addition, the time from the start of a tool call to its result
+    counts as work however long it takes (long builds, tests, processing), except for tools that wait for the owner's reply.
+    uzun_arac / uzun_arac_dakika: the number and total duration of tool calls longer than 10 minutes.
+  - ekip_etkin (team active): time during which at least one session was active (union of the roles; overlaps count once).
+  - sahip_yokken_ekip: time the team was active while the owner was not.
+  - ekip_bosta_*: time when no session was active, bucketed by gap length: up to 60 minutes, 1 to 3 hours,
+    over 3 hours (long gaps are mostly nights or waiting).
+  A session that is merely open does not count as activity; only time with events in the log does.
+
+Report labels (optional, they improve accuracy): the first word of a lead report is
+RAPOR, SORU, BİLGİ or DÜZELTME (report, question, info, correction). Decision sentences start with
+"Vekil kararı", "Lider kararı" or "Proje sahibi".
 """
 import argparse, datetime as dt, json, os, re, subprocess
 from collections import Counter, defaultdict
@@ -84,19 +134,24 @@ TOKEN_ALANLARI = (
 
 
 # Yapıştırılan rol istemi: "Sen bu projede vekil rolündesin", "Sen Proje-Lider oturumusun" gibi. --istem ile değiştirilebilir.
+# EN: Pasted role prompt, e.g. "Sen bu projede vekil rolündesin", "Sen Proje-Lider oturumusun". Override with --istem.
 ISTEM_KALIBI = r"\s*Sen\b[^\n]{1,80}?\b(rolündesin|oturumusun)\b"
 
 
 # Sonucu beklenen süre çalışma sayılmayan araçlar (proje sahibinin yanıtını bekler).
+# EN: Tools whose wait time is not counted as work (they wait for the owner's reply).
 BEKLEME_ARACLARI = {"AskUserQuestion", "ExitPlanMode"}
 
 
 def oturum_say(yol, bas, s, olaylar=None, bit=None, istem=ISTEM_KALIBI, arac_araliklari=None):
     """Bir oturum kaydını sayar. Proje sahibinin mesaj zamanlarını döndürür; olaylar verilirse
-    kayıttaki bütün olay zamanlarını oraya ekler (rolün etkin süresi için)."""
+    kayıttaki bütün olay zamanlarını oraya ekler (rolün etkin süresi için).
+
+    EN: Counts one session log. Returns the timestamps of the owner's messages; if olaylar is given,
+    every event timestamp in the log is appended to it (for the role's active time)."""
     insan_zaman = []
     gorulen_yanit = set()
-    acik_arac = {}  # araç çağrısı kimliği → (başlangıç zamanı, araç adı)
+    acik_arac = {}  # araç çağrısı kimliği → (başlangıç zamanı, araç adı) / EN: tool call id → (start time, tool name)
     for satir in open(yol, encoding="utf-8"):
         try:
             d = json.loads(satir)
@@ -108,9 +163,11 @@ def oturum_say(yol, bas, s, olaylar=None, bit=None, istem=ISTEM_KALIBI, arac_ara
         except ValueError:
             continue
         # Tarih olarak karşılaştırılır (metin karşılaştırması milisaniyeli zamanı aynı saniyede yanlış sıralar).
+        # EN: Compared as datetimes (a string comparison misorders timestamps with milliseconds within the same second).
         if an < _zaman(bas) or (bit and an > _zaman(bit)):
             continue
         # Etkinlik yalnız gerçek mesaj ve yanıt satırlarından ölçülür (ayar ve iç durum satırları sayılmaz).
+        # EN: Activity is measured only from real message and response lines (settings and internal state lines are skipped).
         if olaylar is not None and d.get("type") in ("user", "assistant"):
             olaylar.append(zaman)
         m = d.get("message") or {}
@@ -119,6 +176,8 @@ def oturum_say(yol, bas, s, olaylar=None, bit=None, istem=ISTEM_KALIBI, arac_ara
             if isinstance(c, list) and any(isinstance(x, dict) and x.get("type") == "tool_result" for x in c):
                 # Araç çağrısının başından sonucuna kadar geçen süre, ne kadar uzun olursa olsun çalışmadır
                 # (uzun derleme, test, işleme). Proje sahibini bekleyen araçlar sayılmaz.
+                # EN: The time from a tool call to its result is work, however long it takes
+                # (long builds, tests, processing). Tools that wait for the owner are not counted.
                 for x in c:
                     if not (isinstance(x, dict) and x.get("type") == "tool_result"):
                         continue
@@ -134,6 +193,8 @@ def oturum_say(yol, bas, s, olaylar=None, bit=None, istem=ISTEM_KALIBI, arac_ara
                 continue
             # Alt ajan kaydında (isSidechain) "kullanıcı" mesajı, alt ajanı açan oturumun yazdığı görevdir;
             # proje sahibinin mesajı sayılmaz. Etkinliği ve token kullanımı yine sayılır.
+            # EN: In a subagent log (isSidechain) the "user" message is the task written by the session that spawned
+            # the subagent, not an owner message. Its activity and token usage are still counted.
             if d.get("isSidechain") is True:
                 if not d.get("isMeta"):
                     s["alt_ajan_gorevi"] += 1
@@ -157,7 +218,7 @@ def oturum_say(yol, bas, s, olaylar=None, bit=None, istem=ISTEM_KALIBI, arac_ara
             if (not t.strip() and not gorsel_sayisi(c)) or (t.strip().startswith("<") and "pasted_content" not in t):
                 continue
             if re.match(istem, t):
-                s["rol_istemi"] += 1  # yapıştırılan rol istemi: proje sahibinin mesajı ve etkin süresi sayılmaz
+                s["rol_istemi"] += 1  # yapıştırılan rol istemi: proje sahibinin mesajı ve etkin süresi sayılmaz / EN: pasted role prompt: not an owner message, no owner active time
                 continue
             s["insan_mesaji"] += 1
             if gorsel_sayisi(c):
@@ -197,7 +258,10 @@ def _zaman(z):
 
 def araliklar(zamanlar, esik, ek):
     """Olay zamanlarından etkin aralıklar: esik dakikadan kısa boşluklar aralığı sürdürür,
-    her aralığın sonuna ek dakika eklenir. [(başlangıç, bitiş)] döner."""
+    her aralığın sonuna ek dakika eklenir. [(başlangıç, bitiş)] döner.
+
+    EN: Active intervals from event timestamps: gaps shorter than esik minutes keep an interval going,
+    and ek minutes are added to the end of each interval. Returns [(start, end)]."""
     out = []
     for z in sorted(_zaman(x) for x in zamanlar):
         if out and (z - out[-1][1]).total_seconds() / 60 < esik:
@@ -208,7 +272,7 @@ def araliklar(zamanlar, esik, ek):
 
 
 def birlesim(araliklar_listesi):
-    """Üst üste binen aralıkları birleştirir."""
+    """Üst üste binen aralıkları birleştirir. / EN: Merges overlapping intervals."""
     out = []
     for a, b in sorted(araliklar_listesi):
         if out and a <= out[-1][1]:
@@ -219,7 +283,7 @@ def birlesim(araliklar_listesi):
 
 
 def fark(a_list, b_list):
-    """a aralıklarından b aralıklarını çıkarır."""
+    """a aralıklarından b aralıklarını çıkarır. / EN: Subtracts the b intervals from the a intervals."""
     out = []
     b_list = birlesim(b_list)
     for a, b in birlesim(a_list):

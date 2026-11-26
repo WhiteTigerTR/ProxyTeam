@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /* global process */
-// ÖRNEK: Claude Code UserPromptSubmit kancası. Proje sahibinin bir oturuma yazdığı mesajla canlı onayı verir.
+// TR: ÖRNEK: Claude Code UserPromptSubmit kancası. Proje sahibinin bir oturuma yazdığı mesajla canlı onayı verir.
 // Kit bunu KURMAZ. Telefondan (Remote Control ile) çalışırken terminale erişmeden onay verebilmek içindir.
 //
 // Nasıl çalışır: Claude Code, kullanıcının gönderdiği her mesajdan önce kancaya JSON verir (stdin): { prompt, cwd, ... }.
@@ -21,12 +21,37 @@
 //       1. Bir oturuma "canlı onay <kısa kimlik>" yazın; "node araclar/canli.mjs durum" onayı göstermeli.
 //       2. Başka bir oturumdan bu oturuma aynı cümleyi mesaj olarak gönderin; onay YAZILMAMALI.
 //   - Oturumu açan herkes bu cümleyi yazabilir. Makinenize ve hesabınıza başkası erişebiliyorsa kullanmayın.
+//
+// EN: EXAMPLE: a Claude Code UserPromptSubmit hook. It grants production approval from a message the owner types into a session.
+// The kit does NOT install it. It exists so you can approve from a phone (via Remote Control) without reaching a terminal.
+//
+// How it works: before every message the user sends, Claude Code passes JSON to the hook (stdin): { prompt, cwd, ... }.
+// If the WHOLE message has this form, the hook writes the approval file:
+//
+//   canlı onay c40d7e9
+//
+// The approval is written by this script, not by the model; the model cannot touch the approval file (the role hook
+// blocks it). That keeps the owner's message separate from the session's own decision.
+//
+// Conditions: in .vekilekip.json, canli.yetki must be "sahip" and canli.mesajlaOnay must be true. Otherwise the hook does nothing.
+//
+// Limits:
+//   - The whole message must match the pattern; "canlı onay ..." inside other text does not count. Messages from
+//     other sessions arrive inside a wrapper tag, so they do not match.
+//   - NOT TESTED: it has not been verified in a live session that this hook fires on messages coming from Remote
+//     Control, or how messages from other sessions look to the hook. Try it in your own setup before relying on it:
+//       1. Type "canlı onay <short id>" into a session; "node araclar/canli.mjs durum" should show the approval.
+//       2. Send the same sentence to this session as a message from another session; the approval must NOT be written.
+//   - Anyone who can open a session can type this sentence. Do not use it if someone else has access to your machine and account.
 import { execFileSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 
-/** Mesaj bir onay isteğiyse commit kimliğini (7-40 onaltılık hane), değilse null döner. */
+/**
+ * Mesaj bir onay isteğiyse commit kimliğini (7-40 onaltılık hane), değilse null döner.
+ * EN: Returns the commit id (7 to 40 hex digits) if the message is an approval request, otherwise null.
+ */
 export function onayIstegi(prompt) {
   if (typeof prompt !== "string") return null;
   const m = /^\s*canl[ıi] onay[:\s]+([0-9a-f]{7,40})\s*\.?\s*$/i.exec(prompt);
@@ -74,9 +99,10 @@ if (process.argv[1] && import.meta.url === pathToFileURL(gercek(process.argv[1])
   try {
     canli = JSON.parse(fs.readFileSync(path.join(anaKopya, ".vekilekip.json"), "utf8")).canli ?? {};
   } catch {
-    /* ayar yok */
+    /* ayar yok / EN: no config */
   }
   // Çıktı (stdout) oturumun bağlamına eklenir; model ne olduğunu oradan öğrenir.
+  // EN: The output (stdout) is added to the session's context; that is how the model learns what happened.
   if ((canli.yetki ?? "sahip") !== "sahip") {
     console.log("[canlı onayı] Bu projede canlı yetkisi vekilde; onay gerekmez, yazılmadı.");
     process.exit(0);

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# VekilEkip kurulumu. Etkileşimlidir; soruları sırayla sorar.
+# TR: VekilEkip kurulumu. Etkileşimlidir; soruları sırayla sorar.
 #
 # Çağrı (bash ve zsh'tan aynı):
 #   bash /yol/VekilEkip/kurulum/kur.sh
@@ -9,8 +9,20 @@
 #   - Var olan dosyanın üstüne yazmaz; yeni içeriği <dosya>.yeni olarak bırakır ve söyler.
 #   - Kullanıcı dosyalarına (~/.zshrc, ~/.bashrc, ~/.claude*) kendiliğinden dokunmaz. Çok hesap düzeninde
 #     takma ad satırlarını gösterir, "ekleyeyim mi?" diye sorar; onay yoksa yalnız ekrana yazar.
+#
+# EN: VekilEkip (ProxyTeam) installer. Interactive; it asks its questions one by one (in Turkish).
+#
+# Run it (same from bash and zsh):
+#   bash /path/to/VekilEkip/kurulum/kur.sh
+#
+# What it does:
+#   - Copies the templates, the break check and its config into the target project.
+#   - Never overwrites an existing file; it leaves the new content as <file>.yeni and tells you.
+#   - Does not touch your own files (~/.zshrc, ~/.bashrc, ~/.claude*) on its own. In the multi-account setup it
+#     shows the alias lines and asks whether to add them; without a yes it only prints them.
 
 # zsh ya da sh ile çalıştırıldıysa bash ile yeniden başlat; "source" ile çağrıldıysa dur.
+# EN: If run with zsh or sh, restart under bash; if sourced, stop.
 if [ -n "${ZSH_VERSION:-}" ]; then
   case "${ZSH_EVAL_CONTEXT:-}" in *file*) echo "Bu betik source ile değil, 'bash kur.sh' ile çalıştırılır." >&2; return 1 ;; esac
 fi
@@ -30,11 +42,12 @@ OLUSAN=()
 YENI=()
 ATLANAN=()
 
-# ---- yardımcılar ----
+# ---- yardımcılar / EN: helpers ----
 
 bilgi() { printf '%s\n' "$*" >&2; }
 
 # sor "Soru" "varsayılan" → yanıtı yazar (boşsa varsayılan). Girdi bitmişse varsayılanı alır.
+# EN: sor "Question" "default" → prints the answer (the default if empty). At end of input it takes the default.
 sor() {
   local soru="$1" vars="${2:-}" c=""
   if [ -n "$vars" ]; then printf '%s [%s]: ' "$soru" "$vars" >&2; else printf '%s: ' "$soru" >&2; fi
@@ -45,6 +58,7 @@ sor() {
 }
 
 # evet_mi "Soru" e|h → 0 evet, 1 hayır.
+# EN: evet_mi "Question" e|h → 0 for yes, 1 for no (e = evet/yes, h = hayır/no).
 evet_mi() {
   local vars="$2" ipucu c
   if [ "$vars" = "e" ]; then ipucu="E/h"; else ipucu="e/H"; fi
@@ -62,6 +76,7 @@ hesap_no_gecerli() { [[ "$1" =~ ^[1-9]$ ]] && [ "$1" -le "$HESAP_SAYISI" ]; }
 klasor_gecerli() { [[ "$1" =~ ^[A-Za-z0-9._/~+-]+$ ]]; }
 
 # Geçerli yanıt gelene kadar sorar; girdi bitmişse ve yanıt geçersizse durur.
+# EN: Keeps asking until the answer is valid; gives up if input has ended and the answer is still invalid.
 sor_gecerli() {
   local soru="$1" vars="$2" denetci="$3" c deneme=0
   while :; do
@@ -73,17 +88,18 @@ sor_gecerli() {
   done
 }
 
-# ~/x → $HOME/x (yalnız baştaki ~).
+# ~/x → $HOME/x (yalnız baştaki ~). / EN: leading ~ only.
 genislet() {
   case "$1" in "~") printf '%s' "$HOME" ;; "~/"*) printf '%s' "$HOME/${1#\~/}" ;; *) printf '%s' "$1" ;; esac
 }
 
-# $HOME/x → ~/x (gösterim için).
+# $HOME/x → ~/x (gösterim için). / EN: for display.
 kisalt() {
   case "$1" in "$HOME") printf '~' ;; "$HOME/"*) printf '~/%s' "${1#"$HOME"/}" ;; *) printf '%s' "$1" ;; esac
 }
 
 # Şablondaki {{AD}} yer tutucularını VE_AD ortam değişkeniyle değiştirir (düz metin; özel karakter yorumlanmaz).
+# EN: Replaces {{AD}} placeholders in a template with the VE_AD environment variable (plain text; no special characters are interpreted).
 doldur() {
   awk 'BEGIN { n = split("VEKIL LIDER GELISTIRICI UZAK TARIH HESAP_TABLOSU HESAP_OZETI KARAR_NO CANLI_YETKI CANLI_METNI", k, " ") }
   {
@@ -98,6 +114,7 @@ doldur() {
 }
 
 # yerlestir <içerik dosyası> <hedef>: hedef yoksa yazar; varsa ve aynıysa atlar; farklıysa <hedef>.yeni yazar.
+# EN: yerlestir <content file> <target>: writes the target if missing; skips it if identical; otherwise writes <target>.yeni.
 yerlestir() {
   local kaynak="$1" hedef="$2" goreli="${2#"$PROJE"/}"
   mkdir -p "$(dirname "$hedef")"
@@ -113,6 +130,7 @@ yerlestir() {
 }
 
 # sablon_yerlestir <şablon> <hedef>: yer tutucuları doldurup yerleştirir.
+# EN: sablon_yerlestir <template> <target>: fills in the placeholders, then places the file.
 sablon_yerlestir() {
   local gecici
   gecici="$(mktemp "${TMPDIR:-/tmp}/vekilekip.XXXXXX")"
@@ -121,7 +139,7 @@ sablon_yerlestir() {
   rm -f "$gecici"
 }
 
-# ---- sorular ----
+# ---- sorular / EN: questions ----
 
 bilgi ""
 bilgi "VekilEkip kurulumu"
@@ -211,7 +229,7 @@ else
   CANLI_METNI="**$VEKIL** kararıdır: proje sahibi bu projede yetkiyi devretti (\`.vekilekip.json\` → \`canli.yetki\`). Her canlıya çıkış \"vekil kararı\" olarak karar kaydına yazılır ve raporda bildirilir."
 fi
 
-# ---- yer tutucular ----
+# ---- yer tutucular / EN: placeholders ----
 
 ROLLER=("$VEKIL" "$LIDER" "$GELISTIRICI")
 if [ "$DUZEN" = 1 ]; then
@@ -251,7 +269,7 @@ export VE_VEKIL="$VEKIL" VE_LIDER="$LIDER" VE_GELISTIRICI="$GELISTIRICI" VE_UZAK
 export VE_HESAP_TABLOSU="$TABLO" VE_HESAP_OZETI="$OZET" VE_KARAR_NO="$KARAR_NO"
 export VE_CANLI_YETKI="$CANLI_YETKI" VE_CANLI_METNI="$CANLI_METNI"
 
-# ---- özet ve onay ----
+# ---- özet ve onay / EN: summary and confirmation ----
 
 bilgi ""
 bilgi "Özet:"
@@ -270,18 +288,20 @@ bilgi "  Uzak depo:   $UZAK"
 bilgi "  Canlı kararı: $([ "$CANLI_YETKI" = sahip ] && printf 'proje sahibi' || printf '%s' "$VEKIL")"
 if ! evet_mi "Dosyalar yazılsın mı?" e; then bilgi "Kurulum durdu; hiçbir dosya yazılmadı."; exit 1; fi
 
-# ---- dosyalar ----
+# ---- dosyalar / EN: files ----
 
 GECICI="$(mktemp -d "${TMPDIR:-/tmp}/vekilekip.XXXXXX")"
 trap 'rm -rf "$GECICI"' EXIT
 
 # CLAUDE.md: yoksa oluşturulur; varsa ve bölüm yoksa eklenmiş hali .yeni olarak bırakılır.
+# EN: CLAUDE.md: created if missing; if it exists without the section, a copy with the section added is left as .yeni.
 doldur "$SABLON/CLAUDE-ekip.md" >"$GECICI/ekip.md"
 if [ ! -e "$PROJE/CLAUDE.md" ]; then
   { printf '# %s\n\nBu dosyayı Claude Code her oturumda okur. Projenin kendi kurallarını buraya ekleyin.\n\n' "$(basename "$PROJE")"; cat "$GECICI/ekip.md"; } >"$PROJE/CLAUDE.md"
   OLUSAN+=("CLAUDE.md")
 elif grep -q '^## Ekip ve hat' "$PROJE/CLAUDE.md"; then
   # Bölüm zaten var: var olan dosyaya dokunmadan, bölümü yenisiyle değiştirilmiş halini hazırla.
+  # EN: The section is already there: leave the file alone and prepare a copy with the section replaced by the new one.
   # Bölüm, "## Ekip ve hat" satırından bir sonraki "## " başlığına (ya da dosya sonuna) kadardır.
   awk -v yeni="$GECICI/ekip.md" '
     /^## Ekip ve hat/ && !oldu { while ((getline s < yeni) > 0) print s; atla = 1; oldu = 1; next }
@@ -316,7 +336,7 @@ yerlestir "$KIT/araclar/canli.test.mjs" "$PROJE/araclar/canli.test.mjs"
 yerlestir "$KIT/araclar/olcum.py" "$PROJE/araclar/olcum.py"
 yerlestir "$KIT/araclar/olcum_test.py" "$PROJE/araclar/olcum_test.py"
 
-# .gitignore: yerel/ depoya girmez.
+# .gitignore: yerel/ depoya girmez. / EN: yerel/ stays out of the repository.
 if [ ! -e "$PROJE/.gitignore" ]; then
   printf 'yerel/\n' >"$PROJE/.gitignore"
   OLUSAN+=(".gitignore")
@@ -327,7 +347,7 @@ else
   YENI+=(".gitignore.yeni (yerel/ satırı eklendi)")
 fi
 
-# ---- takma adlar (çok hesap) ----
+# ---- takma adlar (çok hesap) / EN: aliases (multiple accounts) ----
 
 if [ "$DUZEN" = 2 ]; then
   SATIRLAR="# VekilEkip: Claude hesapları"
@@ -367,7 +387,7 @@ if [ "$DUZEN" = 2 ]; then
   done
 fi
 
-# ---- sonuç ----
+# ---- sonuç / EN: result ----
 
 bilgi ""
 bilgi "Kurulum bitti: $PROJE"

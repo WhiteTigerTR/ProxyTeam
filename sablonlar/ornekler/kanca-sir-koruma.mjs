@@ -2,7 +2,7 @@
 /* global process */
 import fs from "node:fs";
 import { pathToFileURL } from "node:url";
-// ÖRNEK: Claude Code PreToolUse kancası. Sır dosyalarının içeriğini gösterecek araç çağrılarını durdurur.
+// TR: ÖRNEK: Claude Code PreToolUse kancası. Sır dosyalarının içeriğini gösterecek araç çağrılarını durdurur.
 // Kit bunu KURMAZ. Kullanmak isterseniz okuyun, kendi sır yollarınıza göre düzenleyin, sonra
 // kanca-ayari.json içindeki örneğe göre .claude/settings.json dosyanıza ekleyin.
 //
@@ -11,8 +11,18 @@ import { pathToFileURL } from "node:url";
 //
 // Sınır: Bu bir emniyet kemeridir, kilit değildir. Sırrı kod içinden okuyan bir betik ya da dolaylı bir komut
 // bu kalıplara takılmaz. Asıl önlem sırların depo dışında, yalnız araçların okuduğu yerde durmasıdır.
+//
+// EN: EXAMPLE: a Claude Code PreToolUse hook. It blocks tool calls that would reveal the contents of secret files.
+// The kit does NOT install it. If you want to use it, read it, adjust it to your own secret paths, then add it
+// to your .claude/settings.json following the example in kanca-ayari.json.
+//
+// How it works: before every tool call, Claude Code passes JSON to the hook (stdin): { tool_name, tool_input, ... }.
+// If the hook exits 0 the call goes ahead; if it exits 2 the call is blocked and the stderr text is passed to Claude.
+//
+// Limit: this is a seat belt, not a lock. A script that reads the secret from code, or an indirect command, will
+// not match these patterns. The real safeguard is keeping secrets outside the repository, where only the tools read them.
 
-// Sır sayılan yollar (düzenleyin).
+// Sır sayılan yollar (düzenleyin). / EN: Paths treated as secrets (edit these).
 const SIR_KALIPLARI = [
   /(^|[\s/'"])\.env(\.[\w-]+)?($|[\s'"])/,
   /\.(pem|key|p12|pfx)($|[\s'"])/,
@@ -21,6 +31,7 @@ const SIR_KALIPLARI = [
   /anahtar(i|lar)?($|[\s'".])/,
 ];
 // İçerik gösteren komutlar. Yoklama (wc -c, test -s, ls) serbesttir.
+// EN: Commands that reveal content. Probing (wc -c, test -s, ls) is allowed.
 const GOSTEREN = /(^|[\s;|&(])(cat|head|tail|less|more|grep|rg|awk|sed|strings|xxd|od|hexdump|bat|nl|base64|cp|scp|curl)\s/;
 
 function oku() {
@@ -33,6 +44,7 @@ function oku() {
 }
 
 // Sır içermeyen örnek dosyalar (.env.example gibi) serbesttir.
+// EN: Example files with no secrets in them (such as .env.example) are allowed.
 const ORNEK_DOSYA = /\.env\.(example|sample|template|ornek)\b/g;
 
 export function sirMi(metin) {
@@ -61,12 +73,13 @@ const gercek = (yol) => {
 };
 
 // Sembolik bağlı yoldan çağrılsa da çalışsın diye gerçek yol karşılaştırılır.
+// EN: The real path is compared so the hook also runs when invoked through a symlink.
 if (process.argv[1] && import.meta.url === pathToFileURL(gercek(process.argv[1])).href) {
   let girdi;
   try {
     girdi = JSON.parse(await oku());
   } catch {
-    process.exit(0); // anlaşılmayan girdide engelleme
+    process.exit(0); // anlaşılmayan girdide engelleme / EN: do not block on input that cannot be parsed
   }
   const neden = denetle(girdi);
   if (neden) {

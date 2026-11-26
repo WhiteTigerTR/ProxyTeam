@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /* global process */
-// ÖRNEK: Claude Code PreToolUse kancası. Rol kurallarını metinden denetime taşır.
+// TR: ÖRNEK: Claude Code PreToolUse kancası. Rol kurallarını metinden denetime taşır.
 // Kit bunu KURMAZ. Kullanmak için: bu dosyayı projenizde araclar/ altına kopyalayın, kanca-ayari.json
 // içindeki örneği .claude/settings.json dosyanıza ekleyin ve her oturumu rolüyle açın:
 //
@@ -25,6 +25,34 @@
 // Kanca 0 ile çıkarsa çağrı sürer; 2 ile çıkarsa durur ve stderr metni Claude'a iletilir.
 // Sınır: Bu bir emniyet kemeridir, kilit değildir. Kabuk komutları kalıpla tanınır; bir betik içinden ya da dolaylı
 // yoldan yapılan yazma (ör. python -c, cp, mv) takılmaz. Canlı bir oturumda uzun süre denenmedi.
+//
+// EN: EXAMPLE: a Claude Code PreToolUse hook. It turns the role rules from prompt text into an enforced check.
+// The kit does NOT install it. To use it: copy this file into araclar/ in your project, add the example from
+// kanca-ayari.json to your .claude/settings.json, and start every session with its role:
+//
+//   VEKILEKIP_ROL=vekil claude          VEKILEKIP_ROL=lider claude          VEKILEKIP_ROL=gelistirici claude
+//
+// The value is one of these three words (proxy, lead, developer); it stays the same even if you renamed the roles
+// at install time. In a session with no role (or any other value) only the "everyone" rules apply.
+//
+// Rules:
+//   everyone      Cannot approve a production deploy itself: a "canli.mjs ... onayla" call, a tool write to the
+//                 approval file, and any shell command that mentions the approval file's name are blocked.
+//   vekil         (proxy) With Edit/Write it can write only under yerel/vekil/ and docs/kararlar/. In the shell,
+//                 redirecting to a file (>, >>, tee, sed -i) and merging or pushing (merge, rebase, reset, push,
+//                 cherry-pick) are blocked.
+//   gelistirici   (developer) In a working copy on the production branch (.vekilekip.json → canli.dal; default main)
+//                 it cannot change files, commit, merge or push; it cannot push to the production branch. It cannot
+//                 spawn subagents.
+//   lider         (lead) No extra restrictions.
+//
+// The branch is taken from the target of the operation, not from the folder the session was opened in: the folder of
+// the file being written, or the first "cd <path>" / "git -C <path>" in the command. That way a developer session
+// opened from the main copy can still write to its own working copy.
+//
+// If the hook exits 0 the call goes ahead; if it exits 2 the call is blocked and the stderr text is passed to Claude.
+// Limit: this is a seat belt, not a lock. Shell commands are recognized by pattern; a write done from inside a script
+// or by an indirect route (e.g. python -c, cp, mv) is not caught. It has not yet been run for any length of time in a live session.
 import { execFileSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
@@ -38,9 +66,13 @@ const git = (re) => new RegExp(`(^|[\\s;|&(])git\\s+(-C\\s+\\S+\\s+)?(${re})(\\s
 const GIT_BIRLESTIR_GONDER = git("merge|rebase|reset|push|cherry-pick");
 const GIT_YAZAN = git("commit|merge|rebase|reset|push|cherry-pick|revert|am");
 // Dosyaya yönlendirme: > ya da >> (2>&1, >&2 ve /dev/null hariç), tee, sed -i.
+// EN: Redirect to a file: > or >> (except 2>&1, >&2 and /dev/null), tee, sed -i.
 const KABUK_YAZAN = /(^|[^0-9&>])>{1,2}\s*(?!&|\/dev\/null)[^\s>&]|(^|[\s;|&(])tee\s|(^|[\s;|&(])sed\s+(-[a-zA-Z]*\s+)*-i/;
 
-/** Dosya yolunu proje köküne göre göreli, "/" ayırıcılı hale getirir; kökün dışındaysa null. */
+/**
+ * Dosya yolunu proje köküne göre göreli, "/" ayırıcılı hale getirir; kökün dışındaysa null.
+ * EN: Makes a file path relative to the project root, with "/" separators; null if it is outside the root.
+ */
 export function goreliYol(dosya, cwd, kok) {
   if (typeof dosya !== "string" || !dosya) return null;
   const g = path.relative(kok, path.resolve(cwd, dosya));
@@ -48,7 +80,10 @@ export function goreliYol(dosya, cwd, kok) {
   return g.split(path.sep).join("/");
 }
 
-/** İşlemin hedef klasörü: yazılan dosyanın klasörü, komuttaki ilk "cd"/"git -C" yolu, yoksa cwd. */
+/**
+ * İşlemin hedef klasörü: yazılan dosyanın klasörü, komuttaki ilk "cd"/"git -C" yolu, yoksa cwd.
+ * EN: The operation's target folder: the folder of the file being written, the first "cd"/"git -C" path in the command, otherwise cwd.
+ */
 export function hedefKlasor(girdi, cwd) {
   const g = girdi.tool_input ?? {};
   if (YAZAN_ARACLAR.has(girdi.tool_name)) {
@@ -66,6 +101,10 @@ export function hedefKlasor(girdi, cwd) {
  * girdi: kancaya gelen JSON; ortam: { rol, kok, canliDal, onayYolu, dal, dalAl? }.
  * dalAl(klasör) verilirse dal işlemin hedef klasöründen bulunur; verilmezse ortam.dal kullanılır.
  * Engellenecekse neden metnini, değilse null döner.
+ *
+ * EN: girdi: the JSON passed to the hook; ortam: { rol, kok, canliDal, onayYolu, dal, dalAl? }.
+ * If dalAl(folder) is given, the branch is looked up from the operation's target folder; otherwise ortam.dal is used.
+ * Returns the reason text if the call should be blocked, otherwise null.
  */
 export function denetle(girdi, ortam) {
   const ad = girdi.tool_name;
@@ -78,6 +117,7 @@ export function denetle(girdi, ortam) {
   const komut = ad === "Bash" && typeof g.command === "string" ? g.command : "";
 
   // herkes: canlı onayı (onay dosyası ana kopyada durur; başka kopyadan tam yolla yazma da durur)
+  // EN: everyone: production approval (the approval file lives in the main copy; a full-path write from another copy is blocked too)
   if (dosya === onay || tamDosya.endsWith("/" + onay)) return "Canlı onayını yalnız proje sahibi verir. Onay dosyasına yazılmaz.";
   if (/canli\.mjs\b[^;|&]*\bonayla\b/.test(komut)) return "Canlı onayını yalnız proje sahibi, kendi terminalinde verir.";
   if (komut.includes(path.basename(onay))) return "Onay dosyasına komutla dokunulmaz. Durumu görmek için: node araclar/canli.mjs durum";
@@ -119,7 +159,10 @@ const gitCalistir = (klasor, ...arg) => {
   }
 };
 
-/** Var olan en yakın üst klasör (henüz oluşturulmamış bir klasöre yazılıyor olabilir). */
+/**
+ * Var olan en yakın üst klasör (henüz oluşturulmamış bir klasöre yazılıyor olabilir).
+ * EN: The nearest existing parent folder (the write may target a folder that does not exist yet).
+ */
 function varOlan(klasor) {
   let k = klasor;
   while (!fs.existsSync(k) && path.dirname(k) !== k) k = path.dirname(k);
@@ -135,22 +178,24 @@ const gercek = (yol) => {
 };
 
 // Sembolik bağlı yoldan çağrılsa da çalışsın diye gerçek yol karşılaştırılır.
+// EN: The real path is compared so the hook also runs when invoked through a symlink.
 if (process.argv[1] && import.meta.url === pathToFileURL(gercek(process.argv[1])).href) {
   let girdi;
   try {
     girdi = JSON.parse(await oku());
   } catch {
-    process.exit(0); // anlaşılmayan girdide engelleme
+    process.exit(0); // anlaşılmayan girdide engelleme / EN: do not block on input that cannot be parsed
   }
   const cwd = girdi.cwd ?? process.cwd();
   const kok = gitCalistir(cwd, "rev-parse", "--show-toplevel") || process.env.CLAUDE_PROJECT_DIR || cwd;
   // Ayar ana kopyada durur (worktree listesinin ilki), araçlarla aynı yerden okunur.
+  // EN: The config lives in the main copy (first in the worktree list) and is read from the same place the tools use.
   const anaKopya = /^worktree (.+)$/m.exec(gitCalistir(cwd, "worktree", "list", "--porcelain"))?.[1] ?? kok;
   let canli = {};
   try {
     canli = JSON.parse(fs.readFileSync(path.join(anaKopya, ".vekilekip.json"), "utf8")).canli ?? {};
   } catch {
-    /* ayar yok ya da okunamadı: varsayılanlar */
+    /* ayar yok ya da okunamadı: varsayılanlar / EN: no config or unreadable: defaults */
   }
   const neden = denetle(girdi, {
     rol: (process.env.VEKILEKIP_ROL ?? "").toLowerCase(),

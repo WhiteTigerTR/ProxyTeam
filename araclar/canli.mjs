@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /* global process, console */
-// VekilEkip canlıya çıkış kapısı. Bağımlılık yok; Node 18 ve üstü yeter.
+// TR: VekilEkip canlıya çıkış kapısı. Bağımlılık yok; Node 18 ve üstü yeter.
 //
 // Canlıya kimin çıkabileceği proje başına ayarlanır (.vekilekip.json → canli.yetki):
 //   "sahip"  Proje sahibi o commit'i onaylamadan canlıya çıkılmaz (varsayılan).
@@ -18,6 +18,25 @@
 // Sınır: Bu bir kapıdır, kasa değildir. "onayla" etkileşimli terminal ister; oturumların araç çağrıları etkileşimli
 // değildir, bu yüzden bir oturum onayı kendi veremez. Onay dosyasına elle yazmayı ve "onayla" çağrısını ayrıca
 // rol kancası (sablonlar/ornekler/kanca-rol.mjs) durdurur. İkisi birlikte kullanılmalıdır.
+//
+// EN: VekilEkip (ProxyTeam) production deploy gate. No dependencies; Node 18 or later is enough.
+//
+// Who may deploy to production is set per project (.vekilekip.json → canli.yetki):
+//   "sahip"  (owner) Nothing goes to production until the owner has approved that exact commit (default).
+//   "vekil"  (proxy) The proxy decides; no approval file is needed. The decision is logged as a "proxy decision".
+//
+//   node araclar/canli.mjs durum             Who holds the authority, is there a valid approval?
+//   node araclar/canli.mjs onayla [commit]   OWNER ONLY, in their own terminal. Approves the tip of the production branch
+//                                            (or the given commit). Needs an interactive terminal and makes you type the short id.
+//   node araclar/canli.mjs denetle [commit]  Called by the deploy script right before promoting to production.
+//                                            Exit 0: may deploy. Exit 1: may not (the reason is printed).
+//   node araclar/canli.mjs kullan            Consumes the approval once the deploy is done, so it cannot be reused for a second deploy.
+//
+// Options: --kok <path>, --ayar <path> (same as mola.mjs). Exit codes: 0 yes, 1 no, 2 usage or config error.
+//
+// Limit: this is a gate, not a safe. "onayla" needs an interactive terminal; the tool calls of sessions are not
+// interactive, so a session cannot give the approval itself. Writing the approval file by hand and calling "onayla"
+// are stopped separately by the role hook (sablonlar/ornekler/kanca-rol.mjs). The two should be used together.
 import { execFileSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
@@ -28,6 +47,9 @@ import { AYAR_DOSYASI, ayariHazirla, kopyalariAyristir } from "./mola.mjs";
 /**
  * Onayın verilen commit için geçerli olup olmadığını söyler.
  * onay: { commit, zaman } ya da null. Döner: { gecerli, neden }.
+ *
+ * EN: Tells whether the approval is valid for the given commit.
+ * onay: { commit, zaman } or null. Returns: { gecerli, neden } (valid, reason).
  */
 export function onayDurumu(onay, commit, simdiMs, gecerlilikSaat) {
   if (!onay || typeof onay.commit !== "string" || typeof onay.zaman !== "string") return { gecerli: false, neden: "onay yok" };
@@ -38,7 +60,7 @@ export function onayDurumu(onay, commit, simdiMs, gecerlilikSaat) {
   return { gecerli: true, neden: `onay geçerli (${onay.commit.slice(0, 7)}, ${onay.zaman})` };
 }
 
-/** Komut satırını çözer. */
+/** Komut satırını çözer. / EN: Parses the command line. */
 export function argumanlariCoz(argv) {
   const s = { komut: null, commit: null, kok: null, ayar: null };
   const kalan = [];
@@ -103,7 +125,7 @@ async function ana() {
   try {
     onay = JSON.parse(fs.readFileSync(onayYolu, "utf8"));
   } catch {
-    /* onay yok */
+    /* onay yok / EN: no approval */
   }
   const durum = onayDurumu(onay, commit, Date.now(), ayar.gecerlilikSaat);
 
@@ -133,7 +155,7 @@ async function ana() {
     console.log("Onay tüketildi.");
     return;
   }
-  // onayla
+  // onayla / EN: approve
   if (ayar.yetki === "vekil") {
     console.log("Bu projede canlı yetkisi vekilde; onay gerekmez. Değiştirmek için .vekilekip.json → canli.yetki.");
     return;
