@@ -1,6 +1,6 @@
 # VekilEkip: a three-session way of working with Claude Code
 
-*Vekil* means proxy or delegate in Turkish; *ekip* means team, hence the repository name ProxyTeam. The full guide is in Turkish: [README.md](README.md).
+*Vekil* means proxy or delegate in Turkish; *ekip* means team, hence the repository name ProxyTeam. The full guide is in Turkish: [README.tr.md](README.tr.md).
 
 > **Status: experimental.** This is an experience report, not a product. It was used by one person on two projects
 > over a few days. The benefits below are goals, not measured results. What the author observed (not measured):

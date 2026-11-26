@@ -1,6 +1,6 @@
 # Hızlı başlangıç (10 dakika)
 
-Yöntemin ne olduğunu ve neden işe yaradığını [README.md](README.md) anlatır. Bu sayfa yalnız kurulumdur. Klasörünüz doluysa ya da git deposu değilse [KULLANIM-TALIMATI.md](KULLANIM-TALIMATI.md) ile ilerleyin.
+Yöntemin ne olduğunu ve neden işe yaradığını [README.tr.md](README.tr.md) anlatır. Bu sayfa yalnız kurulumdur. Klasörünüz doluysa ya da git deposu değilse [KULLANIM-TALIMATI.md](KULLANIM-TALIMATI.md) ile ilerleyin.
 
 ## 0. Gerekenler
 
