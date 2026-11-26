@@ -2,7 +2,7 @@
 # TR: VekilEkip kurulumu. Etkileşimlidir; soruları sırayla sorar.
 #
 # Çağrı (bash ve zsh'tan aynı):
-#   bash /yol/VekilEkip/kurulum/kur.sh
+#   bash ~/ProxyTeam/kurulum/kur.sh
 #
 # Ne yapar:
 #   - Hedef projeye şablonları, mola denetimini ve ayarını kopyalar.
@@ -13,7 +13,7 @@
 # EN: VekilEkip (ProxyTeam) installer. Interactive; it asks its questions one by one (in Turkish).
 #
 # Run it (same from bash and zsh):
-#   bash /path/to/VekilEkip/kurulum/kur.sh
+#   bash ~/ProxyTeam/kurulum/kur.sh
 #
 # What it does:
 #   - Copies the templates, the break check and its config into the target project.

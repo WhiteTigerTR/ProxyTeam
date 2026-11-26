@@ -15,7 +15,15 @@ Toplam süre yaklaşık 15 dakikadır. Her adımda şunlar yazılıdır: ne yaza
 - Bu sayfa macOS'ta yazıldı (`open -e`, zsh). Linux'ta ve Windows'ta WSL'de aynı adımlar geçerlidir; `open -e` yerine kendi metin düzenleyicinizi kullanın.
 - Terminal'de `node --version` 18 ya da üstünü göstermeli.
 - Claude Code kurulu olmalı. Takma adınız varsa (örnek `claude-ali`) onu kullanın, yoksa `claude` yazın.
-- Kitin yerini bilin. Örneklerde `~/VekilEkip` kullanıldı; kendi yolunuzu yazın.
+- git kurulu olmalı (`git --version`).
+
+Kiti indirin (bir kez):
+
+```bash
+git clone https://github.com/WhiteTigerTR/ProxyTeam.git ~/ProxyTeam
+```
+
+git kullanmıyorsanız GitHub sayfasında **Code → Download ZIP** ile indirin ve klasörü `~/ProxyTeam` olarak açın. Aşağıdaki örnekler bu klasörü kullanır; başka yere indirdiyseniz kendi yolunuzu yazın.
 
 ---
 
@@ -67,7 +75,7 @@ Not: `cat > .gitignore` dosyayı baştan yazar, `echo ... >>` ise sonuna satır 
 ## 2. Kurulum betiğini çalıştırın (3 dk)
 
 ```zsh
-bash ~/VekilEkip/kurulum/kur.sh
+bash ~/ProxyTeam/kurulum/kur.sh
 ```
 
 | Soru | Yanıt |

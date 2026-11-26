@@ -27,6 +27,7 @@ Video files / Video dosyaları: [intro, English](tanitim/proxyteam-en.mp4) · [t
 | Quick start / Hızlı kurulum | [QUICKSTART.en.md](QUICKSTART.en.md) | [HIZLI-BASLANGIC.md](HIZLI-BASLANGIC.md) |
 | Step-by-step use / Adım adım kullanım | [USAGE.en.md](USAGE.en.md) | [KULLANIM-TALIMATI.md](KULLANIM-TALIMATI.md) |
 | Measurement log / Ölçüm günlüğü | [MEASUREMENT-LOG.en.md](MEASUREMENT-LOG.en.md) | [OLCUM-GUNLUGU.md](OLCUM-GUNLUGU.md) |
+| Changelog / Değişiklikler | [CHANGELOG.en.md](CHANGELOG.en.md) | [DEGISIKLIKLER.md](DEGISIKLIKLER.md) |
 
 The documents and the code comments are in both languages. The kit's working parts (templates the sessions read, script
 messages, file names) are in Turkish. First measurement entry: Friday 4 December 2026.

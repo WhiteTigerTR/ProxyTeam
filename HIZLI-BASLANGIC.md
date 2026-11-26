@@ -10,6 +10,14 @@ Yöntemin ne olduğunu ve neden işe yaradığını [KILAVUZ.md](KILAVUZ.md) anl
 - Claude Code (`claude --version`).
 - Bir git deposu olan proje klasörü. Yoksa: `git init`.
 
+Kiti indirin (bir kez):
+
+```bash
+git clone https://github.com/WhiteTigerTR/ProxyTeam.git ~/ProxyTeam
+```
+
+git kullanmıyorsanız GitHub sayfasında **Code → Download ZIP** ile indirin ve klasörü `~/ProxyTeam` olarak açın. Aşağıdaki örnekler bu klasörü kullanır; başka yere indirdiyseniz kendi yolunuzu yazın.
+
 ## 1. Hesap düzenini seçin (1 dakika)
 
 - **Tek hesap:** üç oturum aynı hesapta, üç terminal sekmesinde. Kolay; kota tek hesaptan harcanır.
@@ -22,7 +30,7 @@ Emin değilseniz tek hesapla başlayın. `kur.sh` yeniden çalıştırılabilir 
 Bash'ten de zsh'tan da aynı biçimde:
 
 ```bash
-bash /yol/VekilEkip/kurulum/kur.sh
+bash ~/ProxyTeam/kurulum/kur.sh
 ```
 
 Sorular sırayla:
@@ -80,7 +88,7 @@ cd ~/projeler/proje && claude-veli    # geliştirici sekmesi
 İsteğe bağlı, oturumların birbirini görmesi için (belgelenmemiş iç yapıya dayanır, bozulabilir):
 
 ```bash
-bash /yol/VekilEkip/kurulum/oturum-bagla.sh ~/.claude ~/.claude-k2
+bash ~/ProxyTeam/kurulum/oturum-bagla.sh ~/.claude ~/.claude-k2
 ```
 
 Her yeni oturum açıldıktan sonra bir kez çalıştırın.

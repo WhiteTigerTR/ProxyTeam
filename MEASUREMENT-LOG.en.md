@@ -12,11 +12,15 @@ The measurement ends with those four entries, about one month; the last entry su
 - `araclar/olcum.py`: from session logs, tokens, messages, subagent calls and estimated active time per role; from git history, commit counts.
 - Projects are referred to by code name. No message text, names or file contents go in here.
 - Every number that is an estimate is marked "estimate". Anything that cannot be measured is written down as "not measured"; it is neither left blank nor made up.
+- The numbers are published as they are, even if they come out weak or mixed. A published entry is not edited afterwards; if an error is found, it is written up as a correction in the next entry.
+- Every entry states which version of the tool it was measured with (the kit's commit id). If the tool has changed, that entry cannot be compared with earlier ones, and the entry says so.
 
 ## Entry template
 
 ```
 ### DD.MM.YYYY · period: DD.MM – DD.MM (N working days)
+
+Tool version: the kit's commit id (`git -C ~/ProxyTeam rev-parse --short HEAD`)
 
 | Measure | Project A | Project B | Note |
 |---|---|---|---|

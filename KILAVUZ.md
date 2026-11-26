@@ -553,7 +553,7 @@ izlenen açık bir soru olarak sunulması. Benzerini biliyorsanız bir kayıt (i
 ## Kitin içeriği
 
 ```
-VekilEkip/
+ProxyTeam/
   README.md                     karşılama sayfası (iki dil, video)
   KILAVUZ.md                    bu kılavuz
   HIZLI-BASLANGIC.md            10 dakikada kurulum (boş ya da git deposu olan proje)
@@ -566,6 +566,7 @@ VekilEkip/
   araclar/canli.test.mjs        testleri
   araclar/olcum.py              ölçüm cetveli: yalnız sayılar; rol başına etkin süre ve token (Python 3, bağımlılıksız)
   araclar/olcum_test.py         testleri
+  araclar/belge-esligi.test.mjs Türkçe ve İngilizce belgelerin eşliğini denetler (yalnız kitin deposunda)
   sablonlar/CLAUDE-ekip.md      CLAUDE.md'ye eklenecek "Ekip ve hat" bölümü
   sablonlar/DURUM.md            durum ve liderin devir notu
   sablonlar/karar.md            karar kaydı
@@ -584,6 +585,8 @@ VekilEkip/
   USAGE.en.md                   kullanım talimatının İngilizcesi
   MEASUREMENT-LOG.en.md         ölçüm günlüğünün İngilizcesi
   OLCUM-GUNLUGU.md              ölçüm günlüğü: ilk giriş 4 Aralık 2026, sonra üç cuma
+  DEGISIKLIKLER.md              değişiklik listesi; kurulu projede ne yapmalı
+  CHANGELOG.en.md               değişiklik listesinin İngilizcesi
   tanitim/                      tanıtım videoları: 60 saniyelik tanıtım (İngilizce ve Türkçe) ve akış şeması videosu (İngilizce)
   LICENSE                       MIT
 ```
@@ -593,9 +596,9 @@ VekilEkip/
 `.vekilekip.json`, `araclar/mola.mjs`, `araclar/mola.test.mjs`, `araclar/canli.mjs`, `araclar/canli.test.mjs`, `araclar/olcum.py`, `araclar/olcum_test.py`,
 `.gitignore` (`yerel/`). Var olan dosyanın üstüne yazmaz; `.yeni` olarak bırakır. Yeniden çalıştırılabilir: `CLAUDE.md` içinde "Ekip ve hat" bölümü varsa ve yanıtlarınız değiştiyse, bölümü güncellenmiş hali `CLAUDE.md.yeni` olarak bırakılır; projenizin kendi bölümleri korunur. `sablonlar/ornekler/` altındakiler kurulmaz.
 
-Kitin testleri (32 Node testi ve 7 Python testi):
+Kitin testleri (39 Node testi ve 15 Python testi):
 
 ```bash
-node --test araclar/mola.test.mjs araclar/canli.test.mjs sablonlar/ornekler/kanca.test.mjs
+node --test araclar/mola.test.mjs araclar/canli.test.mjs araclar/belge-esligi.test.mjs sablonlar/ornekler/kanca.test.mjs
 python3 araclar/olcum_test.py
 ```

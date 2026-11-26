@@ -12,11 +12,15 @@ Bu sayfa o sorunun yanıtını biriktirir. **İlk ölçüm girişi 4 Aralık 202
 - `araclar/olcum.py`: oturum kayıtlarından rol başına token, mesaj, alt ajan çağrısı ve tahmini etkin süre; git geçmişinden commit sayıları.
 - Projeler kod adıyla anılır. Mesaj metni, ad ya da dosya içeriği buraya girmez.
 - Tahmin olan her sayı "tahmin" diye işaretlenir. Ölçülemeyen şey "ölçülmedi" diye yazılır; boş bırakılmaz, uydurulmaz.
+- Sayılar zayıf ya da karışık çıksa da olduğu gibi yayımlanır. Yayımlanan giriş sonradan değiştirilmez; hata bulunursa sonraki girişte düzeltme olarak yazılır.
+- Her giriş hangi araç sürümüyle ölçüldüğünü yazar (kitin commit kimliği). Araç değiştiyse o giriş önceki girişlerle karşılaştırılamaz; bu da girişte söylenir.
 
 ## Giriş şablonu
 
 ```
 ### GG.AA.YYYY · dönem: GG.AA – GG.AA (N iş günü)
+
+Araç sürümü: kitin commit kimliği (`git -C ~/ProxyTeam rev-parse --short HEAD`)
 
 | Ölçü | Proje A | Proje B | Not |
 |---|---|---|---|

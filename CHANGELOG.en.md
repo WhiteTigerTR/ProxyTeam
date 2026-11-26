@@ -1,0 +1,37 @@
+# Changelog
+
+English · [Türkçe](DEGISIKLIKLER.md)
+
+What changed in the kit, and what to do in a project where the kit is already installed. Newest entry first.
+`kur.sh` can be run again: it does not touch existing files and leaves the new version of each changed file as `.yeni`.
+
+## 27.11.2026
+
+| Change | What to do in an installed project |
+|---|---|
+| The setup documents now have a "download the kit" step; the path in the examples is `~/ProxyTeam`. | Nothing. |
+| Measurement log: every entry states which tool version it was measured with; numbers are published as they are. | If you publish your own measurements, put the kit's commit id in the entry. |
+| Added this file, and a test that checks the two language versions of the documents stay in step. | Nothing. |
+
+## 26.11.2026
+
+| Change | What to do in an installed project |
+|---|---|
+| `araclar/olcum.py`: messages that arrive while a session is busy are counted; the duration of tool calls whose permission the owner granted is no longer counted as work (`izin_bekleme_dakika`); the interrupt line is not a message; files whose name starts with `_` are not tasks or decisions; a label at the very start of a message is recognized, in capitals only. | Take the new `olcum.py`. **Numbers from the old tool cannot be compared with the new one**; re-measure the earlier period with the new tool if you need it. |
+| The break order changed: the check first, with its output sent to the proxy; then the blocking work and the handoff notes; then the check again. The proxy verifies the record itself. | Update the "Ekip ve hat" section in `CLAUDE.md` and `docs/ekip/ilk-mesajlar.md` **together**; if only one is updated, the sessions get conflicting instructions. |
+| Report labels (`RAPOR`, `SORU`, `BİLGİ`, `DÜZELTME`) and decision phrases are now in the role prompts. | They come with the same two files. In a project that does not use labels, the label counts in the measurement are 0. |
+| New rules: a change that collects new personal data goes to the owner; if the proxy and the lead share an account, the lead asks the proxy before a large wave of subagents. A ready-made text for the status table. | They come with the same two files. |
+| The commit subject rule is now in the template ("Birleştirme…", "canlıya yükseltme"). | Optional. If it is not followed, those two counts are 0 in the measurement. |
+| `kur.sh` also writes `__pycache__/` to `.gitignore`. | Add `__pycache__/` to your `.gitignore`; otherwise the break is blocked after the measurement tests run. |
+| The role hook blocks shell commands that contain the approval sentence; the secret hook covers more commands; the deploy lock is taken in one step. | If you copied these example files, copy them again. If you did not, nothing changes. |
+| Documents and code comments are now in both languages. `README.md` is the landing page; the guide is `KILAVUZ.md` and `GUIDE.en.md`. | Nothing. |
+
+## 25.11.2026
+
+First release. Added on top of the original kit: the production gate (`araclar/canli.mjs`), the measurement script, the handoff note check, the single-writer rule, and example role and approval hooks.
+
+| Change | What to do in an installed project |
+|---|---|
+| `.vekilekip.json` has new fields (`devirNotu`, `canli`). | **Update `araclar/mola.mjs` first, then the settings file.** The old `mola.mjs` rejects unknown fields and the break check stops working. |
+| Production deploy is now a separate setting (`canli.yetki`, default `sahip`, the owner). | In a project where the proxy deploys to production, choose `canli.yetki: "vekil"`; otherwise the deploy flow waits for approval. |
+| Only the lead writes `docs/DURUM.md`; the developer's handoff note lives in the task file, the proxy's in `yerel/vekil/rapor.md`. | Update the `CLAUDE.md` section and `docs/ekip/ilk-mesajlar.md` together; tell the lead once. |

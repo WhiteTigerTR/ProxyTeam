@@ -17,7 +17,15 @@ The kit itself is in Turkish: file names, commands, the installer's questions an
 - This page was written on macOS (`open -e`, zsh). The same steps apply on Linux and on WSL on Windows; use your own text editor instead of `open -e`.
 - In the terminal, `node --version` should show 18 or later.
 - Claude Code must be installed. If you have an alias (for example `claude-ali`), use it; otherwise type `claude`.
-- Know where the kit lives. The examples use `~/VekilEkip`; substitute your own path.
+- git must be installed (`git --version`).
+
+Download the kit (once):
+
+```bash
+git clone https://github.com/WhiteTigerTR/ProxyTeam.git ~/ProxyTeam
+```
+
+If you do not use git, download it from the GitHub page with **Code → Download ZIP** and unpack it as `~/ProxyTeam`. The examples below use this folder; if you put it somewhere else, use your own path.
 
 ---
 
@@ -69,7 +77,7 @@ Note: `cat > .gitignore` rewrites the file from scratch, while `echo ... >>` app
 ## 2. Run the installer (3 min)
 
 ```zsh
-bash ~/VekilEkip/kurulum/kur.sh
+bash ~/ProxyTeam/kurulum/kur.sh
 ```
 
 | Question | Answer |

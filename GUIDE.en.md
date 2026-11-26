@@ -559,7 +559,7 @@ with a [measurement log](MEASUREMENT-LOG.en.md). If you know of something simila
 ## What is in the kit
 
 ```
-VekilEkip/
+ProxyTeam/
   README.md                     landing page (two languages, video)
   KILAVUZ.md                    the guide in Turkish
   GUIDE.en.md                   this guide
@@ -575,6 +575,7 @@ VekilEkip/
   araclar/canli.test.mjs        its tests
   araclar/olcum.py              measurement tool: numbers only; active time and tokens per role (Python 3, no dependencies)
   araclar/olcum_test.py         its tests
+  araclar/belge-esligi.test.mjs checks that the Turkish and English documents stay in step (kit repository only)
   sablonlar/CLAUDE-ekip.md      the "Ekip ve hat" (team and line) section to add to CLAUDE.md
   sablonlar/DURUM.md            status and the lead's handoff note
   sablonlar/karar.md            decision record
@@ -590,6 +591,8 @@ VekilEkip/
   ornek/                        filled-in example: status, decision, task, proxy report (an invented project)
   OLCUM-GUNLUGU.md              measurement log: first entry 4 December 2026, then three Fridays, Turkish
   MEASUREMENT-LOG.en.md         the same in English
+  DEGISIKLIKLER.md              changelog, with what to do in an installed project, Turkish
+  CHANGELOG.en.md               the same in English
   tanitim/                      videos: the 60-second intro (English and Turkish) and the flow walkthrough (English)
   LICENSE                       MIT
 ```
@@ -599,9 +602,9 @@ VekilEkip/
 `.vekilekip.json`, `araclar/mola.mjs`, `araclar/mola.test.mjs`, `araclar/canli.mjs`, `araclar/canli.test.mjs`, `araclar/olcum.py`, `araclar/olcum_test.py`,
 `.gitignore` (`yerel/`). It does not overwrite an existing file; it leaves a `.yeni` (new) copy instead. It can be run again: if `CLAUDE.md` already has the "Ekip ve hat" section and your answers have changed, the updated section is left as `CLAUDE.md.yeni`; your project's own sections are kept. The files under `sablonlar/ornekler/` are not installed.
 
-The kit's tests (32 Node tests and 7 Python tests):
+The kit's tests (39 Node tests and 15 Python tests):
 
 ```bash
-node --test araclar/mola.test.mjs araclar/canli.test.mjs sablonlar/ornekler/kanca.test.mjs
+node --test araclar/mola.test.mjs araclar/canli.test.mjs araclar/belge-esligi.test.mjs sablonlar/ornekler/kanca.test.mjs
 python3 araclar/olcum_test.py
 ```

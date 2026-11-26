@@ -12,6 +12,14 @@ The kit itself is in Turkish: file names, commands, the installer's questions an
 - Claude Code (`claude --version`).
 - A project folder that is a git repository. If it is not: `git init`.
 
+Download the kit (once):
+
+```bash
+git clone https://github.com/WhiteTigerTR/ProxyTeam.git ~/ProxyTeam
+```
+
+If you do not use git, download it from the GitHub page with **Code → Download ZIP** and unpack it as `~/ProxyTeam`. The examples below use this folder; if you put it somewhere else, use your own path.
+
 ## 1. Choose the account setup (1 minute)
 
 - **Single account:** three sessions on the same account, in three terminal tabs. Simple; all usage comes out of one account's quota.
@@ -24,7 +32,7 @@ If you are not sure, start with a single account. `kur.sh` is safe to run again 
 It works the same from bash or zsh:
 
 ```bash
-bash /path/VekilEkip/kurulum/kur.sh
+bash ~/ProxyTeam/kurulum/kur.sh
 ```
 
 The questions, in order:
@@ -82,7 +90,7 @@ The first time, each account asks you to log in. Then `/rename`.
 Optionally, to let the sessions see each other (this relies on undocumented internals and may break):
 
 ```bash
-bash /path/VekilEkip/kurulum/oturum-bagla.sh ~/.claude ~/.claude-k2
+bash ~/ProxyTeam/kurulum/oturum-bagla.sh ~/.claude ~/.claude-k2
 ```
 
 Run it once each time you open a new session.
