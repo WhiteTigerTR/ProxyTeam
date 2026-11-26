@@ -16,7 +16,7 @@ Quick setup: [QUICKSTART.en.md](QUICKSTART.en.md). Türkçe kılavuz: [KILAVUZ.m
 > The benefits below are goals, not yet measured results. The kit now keeps the records needed to measure cost and gain
 > itself. The first measurement entry is published on Friday 4 December 2026, and the next three on the three Fridays that follow: [MEASUREMENT-LOG.en.md](MEASUREMENT-LOG.en.md). Most of the parts (lead and worker sessions, worktrees,
 > a separate reviewer, handoff notes) are known practices; this kit brings them together and puts a few rules on top.
-> One of the rules came from a real incident; the others were written against anticipated risks.
+> Some of the rules came from real incidents; the others were written against anticipated risks.
 
 The kit itself is in Turkish: templates, script messages, file names, commands and setting keys. This guide leaves them as they are
 and gives the English meaning in parentheses where a name first appears.
@@ -85,7 +85,7 @@ A three-role Claude Code setup and a few rules that hold it together:
 
 | Role | What it does | What it decides | Who it writes to |
 |---|---|---|---|
-| **Owner** (human) | Sets direction, sees the result. | Money, secrets, deleting data, sending anything outside, decisions that are hard to undo, announcements and opening access, legal text, final visual and design approval, links that must be downloaded by hand. Production deploys (unless authority in the project has been handed to the proxy). | Only to the proxy. |
+| **Owner** (human) | Sets direction, sees the result. | Money, secrets, deleting data, sending anything outside, decisions that are hard to undo, announcements and opening access, legal text, final visual and design approval, links that must be downloaded by hand, any change that collects or stores new personal data. Production deploys (unless authority in the project has been handed to the proxy). | Only to the proxy. |
 | **Proxy** (session) | Takes the owner's input, reports, has claims verified. Does not write code; writes only its own report and the decision records. | Order of work and priority; technical approach; trying a free, openly licensed tool or asset; deploys to the dev environment; reversible design details that follow earlier criteria. Production deploys are set per project (see "Production deploy authority" below). Each one is recorded as a "vekil kararı" (proxy decision). | Only to the lead. |
 | **Lead** (session) | Splits the work, writes tasks, reviews, merges, deploys, does a walkthrough after the deploy, runs the independent reviewer. Does not write code; writes the status file and the task files. | How a task is split, the outcome of a review, merging. | Tasks to the developer; reports to the proxy. |
 | **Developer** (session) | Only writes code; on its own branch, in its own worktree. | Implementation details inside the task. | Reports to the lead. |
@@ -171,6 +171,8 @@ Owner ──input──▶ Proxy ──priority──▶ Lead ──task──�
 - Example: the lead writes to the developer "Görev 0012: `docs/gorevler/0012-giris-formu.md` dosyasını oku." (Task 0012: read the file ...).
   When the developer finishes, it writes the report into the "Rapor" (report) section of the same file and sends the lead a single line.
 - The proxy does not write to the developer. The developer does not write to the proxy. This prevents two separate instructions on the same subject.
+- Every message between sessions starts with a label in capitals. Lead → proxy: `RAPOR` (report), `SORU` (question), `BİLGİ` (info) or `DÜZELTME` (correction). Developer → lead: `RAPOR`, `SORU` or `BİLGİ`. The reader can tell at once which message needs an answer and which one takes back an earlier statement; the measurement script counts the labels too.
+- A decision sentence starts by saying whose it is: "Vekil kararı: ..." (proxy decision), "Lider kararı: ..." (lead decision), "Proje sahibi: ..." (owner).
 
 #### Daily rhythm
 
@@ -200,10 +202,10 @@ When "Mola ver" (take a break) is said, the goal is that all sessions stop witho
 
 1. The owner writes "Mola ver." to the proxy.
 2. The proxy passes it to the lead; the lead to the developer.
-3. Each session stops its work: it shuts down running tests and servers, writes its own handoff note, and commits half-done work as "yarım: ...".
-4. The lead runs `node araclar/mola.mjs`.
-5. On exit 0 it writes "güvende" (safe) and a one-line status to the proxy. The proxy passes it to the owner.
-6. On exit 1 the script lists, line by line, what has to stop; the lead shuts those down and tries again.
+3. The check comes first: the lead runs `node araclar/mola.mjs` and sends its output to the proxy. The script lists, line by line, what has to stop, so the state is known even if a later step gets stuck.
+4. Each session clears what is blocking: it shuts down running tests and servers, commits half-done work as "yarım: ...", and writes its own handoff note.
+5. The lead runs the check again. On exit 0 it writes "güvende" (safe) and a one-line status to the proxy; on exit 1 it clears what is left and tries again.
+6. Before passing "güvende" on to the owner, the proxy verifies the record itself: it looks at the exit code of `node araclar/mola.mjs` and at `yerel/mola.json`.
 
 **A deploy is never interrupted.** Either it is finished or the previous version is restored. If the script sees the deploy lock, it delays the break.
 
@@ -337,6 +339,8 @@ Senden beklenen: (needed from you) only a decision or a job that only the owner 
 Risk: if any
 ```
 
+Status table: when the proxy wants to know where the team stands, it asks the lead for a table: for each open piece of work, the work, percent done, time left and what that estimate rests on; then the next three pieces of work. The lead does not fill in the developer's row from its own guess; it asks the developer and writes down what the developer says. Percent and time are estimates; an estimate with no stated basis does not go into the table. The ready-made text is in `sablonlar/ilk-mesajlar.md`.
+
 ---
 
 ## Intended benefits
@@ -381,7 +385,7 @@ Where possible a rule is added as a working check (a script); otherwise as a sin
 
 ## Rules and lessons
 
-Every rule has a reason. The first is a real incident; the others describe the risk the rule prevents.
+Every rule has a reason. Those marked "real incident" came out of something that happened; the others describe the risk the rule prevents.
 
 **"I logged in" is not passed on without being verified.** *(real incident)*
 The owner said "girdim" (I logged in); the proxy passed this on as "login verified" without looking at a record. It later turned out
@@ -410,7 +414,28 @@ If two sessions give the same developer different instructions, the developer tr
 Running the full test on every branch eats quota and time; it has to run again after the merge anyway. Rule: unit tests
 on the branch, the full test once after the merge.
 
+**On a break, the check comes before the handoff note.** *(real incident)*
+When a break was called, the lead tried to write its handoff note first; the commit got stuck and the break check never ran.
+Nobody knew what state things were in. Rule: the check runs first and its output goes to the proxy; only then is the blocking
+work cleared. The proxy also verifies the record itself before passing "güvende" on.
+
+**A change that collects new personal data goes to the owner.** *(real incident)*
+A technical improvement (a new log to trace a bug, say) can start collecting new personal data without anyone noticing.
+That changes the privacy notice and who is answerable; it is not a routine call. Rule: the proxy does not approve such a change, it takes it to the owner.
+
+**On a shared account, ask before a large wave of subagents.** *(real incident)*
+If the proxy and the lead are on the same account, they share one quota. When the lead spawns many subagents at once, the proxy
+can no longer answer either, and the owner cannot reach the team. Rule: the lead asks the proxy before a large wave of subagents.
+With separate accounts this rule is not needed.
+
 Write your own incidents to `docs/olaylar.md`; new rules come from there.
+
+### Lessons from use
+
+These are not rules. They happened on one project and helped there; if another project confirms them, they become rules.
+
+- **No heavy work on the machine while browser tests are running.** Tests that failed now and then were not flaky in themselves: a build and other test runs were going on at the same time. A small check that no heavy process is running before the tests start helped.
+- **Find the root cause before calling a test flaky, and prove the fix by reverting it.** A test that fails sometimes is easy to wave off as flaky. What worked: find the cause, fix it, then take the fix out and watch the test fail again. If the test does not fail without the fix, that was not the cause.
 
 ---
 
@@ -419,7 +444,7 @@ Write your own incidents to `docs/olaylar.md`; new rules come from there.
 | | One account | Several accounts |
 |---|---|---|
 | **Setup** | Easy: three terminal tabs, `/rename`. | A separate configuration folder and alias for each account (`claude-ali` → `~/.claude`, `claude-veli` → `~/.claude-k2`). |
-| **Quota** | The three sessions draw on one account's quota. | Each session draws on its own account's quota; for example, the developer on the second account. |
+| **Quota** | The three sessions draw on one account's quota. The lead asks the proxy before a large wave of subagents. | Each session draws on its own account's quota; for example, the developer on the second account. |
 | **Sessions seeing each other** | Built in: same account (verified in a real setup). | They do not. They can be linked with the optional `oturum-bagla.sh`; it relies on undocumented internals. |
 | **Remote Control** | One app or browser is enough. | Each account shows only its own sessions; on the phone, split the two accounts between the app and the browser. |
 | **Cost** | One subscription. | More than one subscription. |

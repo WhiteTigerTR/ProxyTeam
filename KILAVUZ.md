@@ -14,7 +14,7 @@ Hızlı kurulum için: [HIZLI-BASLANGIC.md](HIZLI-BASLANGIC.md). English: [GUIDE
 > Aşağıdaki faydalar hedeftir, henüz ölçülmüş sonuç değildir. Kit, maliyeti ve kazancı ölçmeye yarayacak kayıtları artık
 > kendisi tutuyor. İlk ölçüm girişi 4 Aralık 2026 Cuma günü, sonraki üçü izleyen üç cuma yayımlanır: [OLCUM-GUNLUGU.md](OLCUM-GUNLUGU.md). Parçaların çoğu (lider ve işçi oturumlar, worktree,
 > ayrı gözden geçirici, devir notu) bilinen yöntemlerdir; bu kit onları bir araya getirir ve üstüne birkaç kural koyar.
-> Kurallardan biri yaşanmış bir olaydan çıktı; öbürleri öngörülen risklere karşı yazıldı.
+> Kuralların bir kısmı yaşanmış olaylardan çıktı; öbürleri öngörülen risklere karşı yazıldı.
 
 ---
 
@@ -80,7 +80,7 @@ Benzerleri ve farklar için: [Benzer çalışmalar ve bu kitin yeri](#benzer-ça
 
 | Rol | Ne yapar | Neye karar verir | Kime yazar |
 |---|---|---|---|
-| **Proje sahibi** (insan) | Yön verir, sonucu görür. | Para, sır, veri silme, dışarı gönderme, geri dönüşü zor karar, duyuru ve erişim açma, hukuki metin, son görsel ve tasarım onayı, elle indirilecek bağlantı. Canlıya çıkış (projede yetki vekile devredilmediyse). | Yalnız vekile. |
+| **Proje sahibi** (insan) | Yön verir, sonucu görür. | Para, sır, veri silme, dışarı gönderme, geri dönüşü zor karar, duyuru ve erişim açma, hukuki metin, son görsel ve tasarım onayı, elle indirilecek bağlantı, yeni kişisel veri toplayan ya da saklayan değişiklik. Canlıya çıkış (projede yetki vekile devredilmediyse). | Yalnız vekile. |
 | **Vekil** (oturum) | Proje sahibinin görüşünü alır, rapor verir, iddiaları doğrulatır. Kod yazmaz; yalnız kendi raporunu ve karar kayıtlarını yazar. | İş sırası ve öncelik; teknik yöntem; ücretsiz ve açık lisanslı araç ya da varlık denemek; dev ortamına yayın; önceki ölçütlere dayanan geri alınabilir tasarım ayrıntısı. Canlıya çıkış, proje başına ayarlanır (aşağıda "Canlıya çıkış yetkisi"). Her biri "vekil kararı" diye kaydedilir. | Yalnız lidere. |
 | **Lider** (oturum) | İşi böler, görev yazar, inceler, birleştirir, yayımlar, yayın sonrası tur atar, bağımsız gözü çalıştırır. Kod yazmaz; durum dosyasını ve görev dosyalarını yazar. | Görevin nasıl bölüneceği, incelemenin sonucu, birleştirme. | Geliştiriciye görev; vekile rapor. |
 | **Geliştirici** (oturum) | Yalnız kod yazar; kendi dalında, kendi worktree'sinde. | Görev içindeki uygulama ayrıntısı. | Lidere rapor. |
@@ -166,6 +166,8 @@ Proje sahibi ──görüş──▶ Vekil ──öncelik──▶ Lider ──g
 - Örnek: lider geliştiriciye "Görev 0012: `docs/gorevler/0012-giris-formu.md` dosyasını oku." yazar.
   Geliştirici bitince raporu aynı dosyanın "Rapor" bölümüne yazar ve lidere tek satır gönderir.
 - Vekil geliştiriciye yazmaz. Geliştirici vekile yazmaz. Bu, aynı konuda iki ayrı talimatın çıkmasını önler.
+- Oturumlar arası her mesajın ilk sözcüğü büyük harfle bir etikettir. Lider → vekil: `RAPOR`, `SORU`, `BİLGİ` ya da `DÜZELTME`. Geliştirici → lider: `RAPOR`, `SORU` ya da `BİLGİ`. Okuyan, yanıt bekleyen mesajı ve önceki bir sözü geri alan mesajı hemen ayırır; ölçüm aracı da etiketleri sayar.
+- Karar cümleleri kimin verdiğini söyleyerek başlar: "Vekil kararı: ...", "Lider kararı: ...", "Proje sahibi: ...".
 
 #### Günlük ritim
 
@@ -195,10 +197,10 @@ Neden: uzun bağlam her adımda yeniden okunur ve kotayı yer. Beklenti, temiz b
 
 1. Proje sahibi vekile "Mola ver." yazar.
 2. Vekil lidere iletir; lider geliştiriciye.
-3. Her oturum işini durdurur: çalışan testi ve sunucuyu kapatır, kendi devir notunu yazar, yarım işi "yarım: ..." diye commit eder.
-4. Lider `node araclar/mola.mjs` çalıştırır.
-5. Çıkış 0 ise vekile "güvende" ve tek satır durum yazar. Vekil proje sahibine iletir.
-6. Çıkış 1 ise betik neyin durması gerektiğini satır satır yazar; lider onları kapatıp yeniden dener.
+3. Önce denetim: lider `node araclar/mola.mjs` çalıştırır ve çıktısını vekile yazar. Betik neyin durması gerektiğini satır satır söyler; böylece sonraki adımlardan biri takılsa bile durum bilinir.
+4. Her oturum engelleri kapatır: çalışan testi ve sunucuyu durdurur, yarım işi "yarım: ..." diye commit eder, kendi devir notunu yazar.
+5. Lider denetimi yeniden çalıştırır. Çıkış 0 ise vekile "güvende" ve tek satır durum yazar; çıkış 1 ise kalan engelleri kapatıp yeniden dener.
+6. Vekil "güvende" sözünü proje sahibine iletmeden önce kaydı kendisi doğrular: `node araclar/mola.mjs` çıkışına ve `yerel/mola.json` dosyasına bakar.
 
 **Yayın yarıda kesilmez.** Ya bitirilir ya önceki sürüme dönülür. Betik yayın kilidini görürse molayı geciktirir.
 
@@ -332,6 +334,8 @@ Senden beklenen: yalnız proje sahibinin verebileceği karar ya da iş
 Risk: varsa
 ```
 
+Durum tablosu: vekil ekibin nerede olduğunu öğrenmek istediğinde liderden bir tablo ister: her açık iş için iş, yüzde, kalan süre ve bu tahminin dayanağı; ardından sonraki üç iş. Geliştiricinin satırını lider kendi tahminiyle doldurmaz; geliştiriciye sorar ve onun sözünü yazar. Yüzde ve süre tahmindir; dayanağı yazılmayan tahmin tabloya girmez. Hazır metni `sablonlar/ilk-mesajlar.md` içindedir.
+
 ---
 
 ## Hedeflenen fayda
@@ -376,7 +380,7 @@ Mümkünse çalışan bir denetim (betik) olarak; değilse tek satır olarak. Uz
 
 ## Kurallar ve dersler
 
-Her kuralın bir nedeni var. İlki yaşanmış bir olaydır; öbürleri kuralın önlediği riski anlatır.
+Her kuralın bir nedeni var. "Yaşanmış olay" diye işaretlenenler gerçek bir olaydan çıktı; öbürleri kuralın önlediği riski anlatır.
 
 **"Girdim" sözü doğrulanmadan aktarılmaz.** *(yaşanmış olay)*
 Proje sahibi "girdim" dedi; vekil bunu kayda bakmadan "giriş doğrulandı" diye aktardı. Sonra yanlış ortama
@@ -405,7 +409,27 @@ Sızıntı olursa hemen bildirilir, sır yenilenir, olay günlüğüne yazılır
 Her dalda tam test koşmak kotayı ve zamanı yer; birleştirmeden sonra yine koşmak gerekir. Kural: dalda birim
 testleri, tam test birleştirmeden sonra bir kez.
 
+**Molada önce denetim, sonra devir notu.** *(yaşanmış olay)*
+Mola dendiğinde lider önce devir notunu yazmaya çalıştı; commit takıldı ve mola denetimine hiç sıra gelmedi. Kimse durumun
+ne olduğunu bilmiyordu. Kural: önce denetim çalışır ve çıktısı vekile gider; engeller ondan sonra kapatılır. Vekil de
+"güvende" sözünü aktarmadan önce kaydı kendisi doğrular.
+
+**Yeni kişisel veri toplayan değişiklik proje sahibine gider.** *(yaşanmış olay)*
+Teknik bir iyileştirme (ör. bir hatayı izlemek için yeni bir kayıt) fark edilmeden yeni kişisel veri toplamaya başlayabilir.
+Bu, aydınlatma metnini ve sorumluluğu değiştirir; rutin karar değildir. Kural: böyle bir değişikliği vekil onaylamaz, proje sahibine götürür.
+
+**Aynı hesapta büyük ajan dalgası sorulur.** *(yaşanmış olay)*
+Vekil ve lider aynı hesaptaysa kotaları ortaktır. Lider çok sayıda alt ajanı birden açarsa vekil de yanıt veremez hale gelir
+ve proje sahibi ekibe ulaşamaz. Kural: lider büyük bir alt ajan dalgasından önce vekile sorar. Hesaplar ayrıysa bu kural gerekmez.
+
 Kendi olaylarınızı `docs/olaylar.md` dosyasına yazın; yeni kurallar oradan doğar.
+
+### Kullanımdan çıkan dersler
+
+Bunlar kural değil. Tek bir projede yaşandı ve orada işe yaradı; başka bir projede de doğrulanırsa kurala çevrilir.
+
+- **Tarayıcı testi sürerken aynı makinede ağır iş yapılmaz.** Arada bir düşen testlerin nedeni testin kendisi değil, aynı anda çalışan derleme ve öbür test koşularıydı. Testten önce makinede ağır bir sürecin çalışmadığına bakan küçük bir denetim işe yaradı.
+- **"Kırılgan test" demeden önce kök neden aranır; düzeltme ters denemeyle kanıtlanır.** Bir testin bazen düşmesi "kırılgan" diye geçiştirilebilir. İşe yarayan yol: nedeni bul, düzelt, sonra düzeltmeyi geri al ve testin yeniden düştüğünü gör. Düzeltme geri alındığında test düşmüyorsa neden o değildir.
 
 ---
 
@@ -414,7 +438,7 @@ Kendi olaylarınızı `docs/olaylar.md` dosyasına yazın; yeni kurallar oradan 
 | | Tek hesap | Çok hesap |
 |---|---|---|
 | **Kurulum** | Kolay: üç terminal sekmesi, `/rename`. | Her hesap için ayrı yapılandırma klasörü ve takma ad (`claude-ali` → `~/.claude`, `claude-veli` → `~/.claude-k2`). |
-| **Kota** | Üç oturum tek hesabın kotasından yer. | Her oturum kendi hesabının kotasından yer; örneğin geliştirici ikinci hesapta. |
+| **Kota** | Üç oturum tek hesabın kotasından yer. Lider büyük bir alt ajan dalgasından önce vekile sorar. | Her oturum kendi hesabının kotasından yer; örneğin geliştirici ikinci hesapta. |
 | **Oturumların birbirini görmesi** | Doğal: aynı hesap (gerçek kurulumda doğrulandı). | Görmez. İsteğe bağlı `oturum-bagla.sh` ile bağlanır; belgelenmemiş iç yapıya dayanır. |
 | **Remote Control** | Tek uygulama ya da tarayıcı yeter. | Her hesap yalnız kendi oturumlarını gösterir; telefonda iki hesap için uygulama ve tarayıcıyı ayırın. |
 | **Maliyet** | Bir abonelik. | Birden çok abonelik. |

@@ -26,7 +26,7 @@ Oturumlar ve hesaplar:
 
 ### Vekil yetkisi
 - **{{VEKIL}} karar verir** (kayda "vekil kararı" diye girer): iş sırası ve öncelik; teknik yöntem; ücretsiz ve açık lisanslı araç ya da varlık deneme; dev ortamına yayın; daha önce konmuş ölçütlere dayanan, geri alınabilir tasarım ayrıntısı.
-- **Proje sahibine sorulur** ({{VEKIL}} götürür): para; elle indirilecek bağlantı; sır; veri silme; dışarıya gönderme; geri dönüşü zor karar; duyuru ve erişim açma; hukuki metin; son görsel ve tasarım onayı.
+- **Proje sahibine sorulur** ({{VEKIL}} götürür): para; elle indirilecek bağlantı; sır; veri silme; dışarıya gönderme; geri dönüşü zor karar; duyuru ve erişim açma; hukuki metin; son görsel ve tasarım onayı; yeni kişisel veri toplayan ya da saklayan değişiklik (ör. yeni bir kayıt, izleme, form alanı).
 - **Canlıya çıkış** bu projede {{CANLI_METNI}}
 
 ### Ortak bellek depodur
@@ -45,8 +45,11 @@ Oturumlar ve hesaplar:
 Her büyük görev bitince ya da bir saatten uzun aradan önce: kendi devir notu → depodaki dosyayı commit → `/clear`. Temizlenen oturum "Oturum başı" adımıyla açılır. Rol istemi `docs/ekip/ilk-mesajlar.md` dosyasından kopyalanır.
 
 ### Mola
-- "Mola ver" denince bütün oturumlar kayıpsız durur (hedef: yaklaşık 5 dakika): uzun süreçler durdurulur, herkes kendi devir notunu yazar, yarım iş "yarım" diye commit edilir.
-- {{LIDER}} `node araclar/mola.mjs` çalıştırır. Çıkış 0 ise {{VEKIL}} oturumuna "güvende" ve tek satır durum yazar; {{VEKIL}} bunu proje sahibine iletir.
+- "Mola ver" denince bütün oturumlar kayıpsız durur (hedef: yaklaşık 5 dakika).
+- Sıra önemlidir. Önce denetim: {{LIDER}} `node araclar/mola.mjs` çalıştırır ve çıktısını (engel ve uyarı satırlarıyla) {{VEKIL}} oturumuna yazar. Böylece bir adım takılsa bile durum bilinir.
+- Sonra engeller kapatılır: uzun süreçler durdurulur, yarım iş "yarım" diye commit edilir, herkes kendi devir notunu yazar.
+- {{LIDER}} denetimi yeniden çalıştırır. Çıkış 0 ise {{VEKIL}} oturumuna "güvende" ve tek satır durum yazar.
+- {{VEKIL}} "güvende" sözünü proje sahibine iletmeden önce kaydı kendisi doğrular: `node araclar/mola.mjs` çıkışına ve `yerel/mola.json` dosyasına bakar.
 - Yayın yarıda kesilmez: ya biter ya önceki sürüme dönülür.
 - "Mola bitti" denince {{LIDER}} `node araclar/mola.mjs bitti` çalıştırır; herkes kendi devir notundan devam eder.
 
@@ -73,7 +76,11 @@ Betikle ya da testle ölçülebilen şey önce öyle ölçülür; göz, ölçül
 - Pahalı incelemeler {{LIDER}} oturumundaki alt ajanlarda yapılır. {{GELISTIRICI}} yalnız kod yazar.
 - Tam test birleştirmeden sonra bir kez koşar.
 - Aynı klasörde iki test koşusu olmaz.
+- {{VEKIL}} ve {{LIDER}} aynı hesaptaysa kota ortaktır: {{LIDER}} çok sayıda alt ajanı birden açmadan önce {{VEKIL}} oturumuna sorar.
 
 ### Rapor biçimi
 - {{VEKIL}} → proje sahibi: Durum (tek satır) / Bitenler (görüntüyle) / Vekil kararları / Senden beklenen / Risk. Telefonda iki dakikada okunacak uzunlukta. Şablon: `docs/ekip/vekil-rapor.md`.
 - {{LIDER}} → {{VEKIL}}: Durum / Bitenler (kanıtla) / Vekil kararı gereken / Proje sahibine gidecek / Risk. Metni `docs/ekip/ilk-mesajlar.md` içindedir.
+- Oturumlar arası her mesajın ilk sözcüğü büyük harfle bir etikettir. {{LIDER}} → {{VEKIL}}: RAPOR, SORU, BİLGİ ya da DÜZELTME. {{GELISTIRICI}} → {{LIDER}}: RAPOR, SORU ya da BİLGİ. Okuyan, yanıt bekleyen mesajı (SORU) ve önceki bir sözü geri alan mesajı (DÜZELTME) hemen ayırır.
+- Karar cümleleri kimin verdiğini söyleyerek başlar: "Vekil kararı: ...", "Lider kararı: ...", "Proje sahibi: ...". Ölçüm aracı etiketleri ve bu kalıpları sayar.
+- Durum tablosu: {{VEKIL}} ekibin nerede olduğunu sorduğunda yanıt bir tablodur (iş, yüzde, kalan süre ve dayanağı, sonraki üç iş). {{GELISTIRICI}} satırını {{LIDER}} kendi tahminiyle doldurmaz; {{GELISTIRICI}} oturumunun kendi sözünü yazar. Metni `docs/ekip/ilk-mesajlar.md` içindedir.
