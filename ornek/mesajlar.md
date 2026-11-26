@@ -16,10 +16,11 @@ Lider:
 
 ```
 BİLGİ
-| İş | Kimde | Yüzde | Kalan süre | Dayanak |
-|---|---|---|---|---|
-| 0012 düzeltme turu | gelistirici | %80 | ~1 sa | Kendi sözü: gün hesabı düzeltildi, 9 test geçiyor; gece yarısı sınırı için 2 test yazılıyor, koşulmadı. |
-| 0012 inceleme, tur 2 | lider | %0 | ~30 dk | Rapor gelmeden başlamaz; kod incelemesi ve bağımsız göz yapılacak. |
+| İş | Kimde | Yüzde | Kalan süre | Dayanak | Tahmin kimin |
+|---|---|---|---|---|---|
+| 0012 düzeltme turu | gelistirici | %80 | ~1 sa | Gün hesabı düzeltildi, 9 test geçiyor; gece yarısı sınırı için 2 test yazılıyor, koşulmadı. | gelistirici, kendi sözü |
+| 0012 inceleme, tur 2 | lider | %0 | ~30 dk | Rapor gelmeden başlamaz; kod incelemesi ve bağımsız göz yapılacak. | lider |
+Lider görüşü: 1 saate tam koşu dahil değil; 84 testlik koşu ~20 dk sürüyor. Düzeltme turu için ~1,5 sa bekliyorum.
 Sonraki üç iş: 1) 0012 dev'de tur 2) canlı onayı için rapor 3) kütüphaneciye özet rapor görevinin tanımı
 ```
 

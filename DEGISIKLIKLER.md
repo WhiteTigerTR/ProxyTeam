@@ -14,6 +14,8 @@ Kitte neyin değiştiğini ve kiti daha önce kurmuş bir projede ne yapmanız g
 | Bu dosya ve iki dildeki belgelerin eşliğini denetleyen test eklendi. | Bir şey gerekmez. |
 | Karşılama sayfasına "içinde ne var" tablosu eklendi; kılavuzun özet listesine ölçüm maddesi girdi; raporun "iki dakikada okunması" hedef olarak yazıldı. | Bir şey gerekmez. |
 | Karşılama sayfasındaki mola satırı düzeltildi: betik "yarım iş kalmadığını" değil, kaydedilmemiş iş ve çalışan süreç kalmadığını doğrular. Örnek klasörüne etiketli mesaj ve durum tablosu örneği eklendi (`ornek/mesajlar.md`). | Bir şey gerekmez. |
+| Durum tablosuna "Tahmin kimin" sütunu ve "Lider görüşü" satırı eklendi: lider geliştiricinin tahminini değiştirmez, kendi görüşünü ayrı yazar. | `CLAUDE.md` içindeki "Ekip ve hat" bölümünü ve `docs/ekip/ilk-mesajlar.md` dosyasını birlikte güncelleyin. |
+| `mola.mjs bitti`, rafta (`git stash`) iş varsa uyarır. | Yeni `mola.mjs` dosyasını alın. |
 
 ## 26.11.2026
 

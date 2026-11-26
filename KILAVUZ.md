@@ -206,7 +206,7 @@ Neden: uzun bağlam her adımda yeniden okunur ve kotayı yer. Beklenti, temiz b
 **Yayın yarıda kesilmez.** Ya bitirilir ya önceki sürüme dönülür. Betik yayın kilidini görürse molayı geciktirir.
 
 "Mola bitti" denince lider `node araclar/mola.mjs bitti` çalıştırır. Betik, kopyaların molaya girerken kaydedilen
-commit'te olup olmadığına bakar. Herkes kendi devir notundan devam eder.
+commit'te olup olmadığına bakar; rafta (`git stash`) iş varsa uyarır. Herkes kendi devir notundan devam eder.
 
 Betik ne denetler:
 
@@ -335,7 +335,7 @@ Senden beklenen: yalnız proje sahibinin verebileceği karar ya da iş
 Risk: varsa
 ```
 
-Durum tablosu: vekil ekibin nerede olduğunu öğrenmek istediğinde liderden bir tablo ister: her açık iş için iş, yüzde, kalan süre ve bu tahminin dayanağı; ardından sonraki üç iş. Geliştiricinin satırını lider kendi tahminiyle doldurmaz; geliştiriciye sorar ve onun sözünü yazar. Yüzde ve süre tahmindir; dayanağı yazılmayan tahmin tabloya girmez. Hazır metni `sablonlar/ilk-mesajlar.md` içindedir.
+Durum tablosu: vekil ekibin nerede olduğunu öğrenmek istediğinde liderden bir tablo ister: her açık iş için iş, yüzde, kalan süre ve bu tahminin dayanağı; ardından sonraki üç iş. Geliştiricinin satırını lider kendi tahminiyle doldurmaz; geliştiriciye sorar ve onun sözünü yazar; tabloda her tahminin kime ait olduğu görünür. Lider farklı düşünüyorsa geliştiricinin tahminini değiştirmez, tablonun altına "Lider görüşü" diye yazar. Yüzde ve süre tahmindir; dayanağı yazılmayan tahmin tabloya girmez. Hazır metni `sablonlar/ilk-mesajlar.md` içindedir.
 
 ---
 

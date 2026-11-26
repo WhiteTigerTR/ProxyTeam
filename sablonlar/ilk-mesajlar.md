@@ -96,13 +96,14 @@ Durum tablosu ver: her açık iş için iş, yüzde, kalan süre ve bu tahminin 
 
 ```
 BİLGİ
-| İş | Kimde | Yüzde | Kalan süre | Dayanak |
-|---|---|---|---|---|
-| NNNN-ad | {{GELISTIRICI}} | %.. | .. | (ör. 5 adımdan 3'ü bitti; testler geçiyor) |
+| İş | Kimde | Yüzde | Kalan süre | Dayanak | Tahmin kimin |
+|---|---|---|---|---|---|
+| NNNN-ad | {{GELISTIRICI}} | %.. | .. | (ör. 5 adımdan 3'ü bitti; testler geçiyor) | {{GELISTIRICI}}, kendi sözü |
+Lider görüşü: ... (bir tahmine katılmıyorsan ya da süreyi değiştirecek bir şey biliyorsan; yoksa bu satırı yazma)
 Sonraki üç iş: 1) ... 2) ... 3) ...
 ```
 
-Yüzde ve süre tahmindir; dayanağı yazılmayan tahmin tabloya girmez.
+Yüzde ve süre tahmindir; dayanağı yazılmayan tahmin tabloya girmez. {{LIDER}}, {{GELISTIRICI}} satırındaki tahmini değiştirmez; farklı düşünüyorsa "Lider görüşü" satırına yazar.
 
 ---
 

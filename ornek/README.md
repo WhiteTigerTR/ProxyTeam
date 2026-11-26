@@ -16,7 +16,7 @@ Dikkat edilecekler:
 - Her iddianın yanında kanıt var: test sayısı, görüntü yolu, commit kimliği.
 - Rapor "düzeldi" demiyor; neyin düzeldiğini ve neyin kaldığını ayrı yazıyor.
 - Vekil, para gerektiren seçeneği (SMS) kendisi seçmiyor; proje sahibine götürüyor.
-- Lider, yanlış çıkan sözünü `DÜZELTME` etiketiyle geri alıyor; tablodaki her tahminin dayanağı yazılı.
+- Lider, yanlış çıkan sözünü `DÜZELTME` etiketiyle geri alıyor; tablodaki her tahminin dayanağı ve kime ait olduğu yazılı; lider geliştiricinin tahminini değiştirmiyor, kendi görüşünü ayrı yazıyor.
 - Canlıya çıkış bu projede proje sahibinde; rapor ondan onay istiyor.
 
 ## English
@@ -38,5 +38,5 @@ Things to notice:
 - Every claim has evidence next to it: test count, screenshot path, commit id.
 - The report does not say "fixed"; it states separately what was fixed and what remains.
 - The proxy does not choose the option that costs money (SMS) on its own; it takes that to the owner.
-- The lead takes back a statement that turned out wrong with the `DÜZELTME` label; every estimate in the table states what it rests on.
+- The lead takes back a statement that turned out wrong with the `DÜZELTME` label; every estimate in the table states what it rests on and whose it is; the lead does not change the developer's estimate, it writes its own view separately.
 - Production deploys in this project are the owner's call; the report asks the owner for approval.

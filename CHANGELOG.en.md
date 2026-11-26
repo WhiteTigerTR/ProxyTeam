@@ -14,6 +14,8 @@ What changed in the kit, and what to do in a project where the kit is already in
 | Added this file, and a test that checks the two language versions of the documents stay in step. | Nothing. |
 | The landing page has a "what is in it" table; the guide's summary list now mentions measurement; reading a report "in two minutes" is stated as a goal. | Nothing. |
 | The break row on the landing page was corrected: the script does not verify that "nothing is left half done"; it verifies that no uncommitted work or running process is left. The example folder now has labeled messages and a status table (`ornek/mesajlar.md`). | Nothing. |
+| The status table has a "Tahmin kimin" (whose estimate) column and a "Lider görüşü" (lead's view) line: the lead does not change the developer's estimate, it writes its own view separately. | Update the "Ekip ve hat" section in `CLAUDE.md` and `docs/ekip/ilk-mesajlar.md` together. |
+| `mola.mjs bitti` warns if there is stashed work (`git stash`). | Take the new `mola.mjs`. |
 
 ## 26.11.2026
 

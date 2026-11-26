@@ -214,8 +214,14 @@ test("uçtan uca: temiz, kirli, kilit, mola bitti, molada commit", (t) => {
   assert.equal(kayit.durum, "molada");
   assert.equal(kayit.kopyalar.length, 2);
 
+  // Rafta iş varsa "bitti" bunu uyarı olarak yazar. / EN: "bitti" prints stashed work as a warning.
+  fs.writeFileSync(path.join(kopya, "raf.txt"), "rafta\n");
+  git(kopya, "add", ".");
+  git(kopya, "stash", "-q");
   r = mola(kopya, "bitti");
   assert.equal(r.kod, 0, r.cikti);
+  assert.match(r.cikti, /UYARI .*rafta \(git stash\) 1 kayıt/);
+  git(kopya, "stash", "drop", "-q");
   assert.equal(JSON.parse(fs.readFileSync(path.join(depo, "yerel/mola.json"), "utf8")).durum, "çalışıyor");
 
   fs.writeFileSync(path.join(kopya, "b.txt"), "yarım\n");

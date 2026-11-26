@@ -211,7 +211,7 @@ When "Mola ver" (take a break) is said, the goal is that all sessions stop witho
 **A deploy is never interrupted.** Either it is finished or the previous version is restored. If the script sees the deploy lock, it delays the break.
 
 When "Mola bitti" (the break is over) is said, the lead runs `node araclar/mola.mjs bitti`. The script checks whether the working copies are at the
-commit recorded when the break began. Everyone continues from their own handoff note.
+commit recorded when the break began, and warns if there is stashed work (`git stash`). Everyone continues from their own handoff note.
 
 What the script checks:
 
@@ -340,7 +340,7 @@ Senden beklenen: (needed from you) only a decision or a job that only the owner 
 Risk: if any
 ```
 
-Status table: when the proxy wants to know where the team stands, it asks the lead for a table: for each open piece of work, the work, percent done, time left and what that estimate rests on; then the next three pieces of work. The lead does not fill in the developer's row from its own guess; it asks the developer and writes down what the developer says. Percent and time are estimates; an estimate with no stated basis does not go into the table. The ready-made text is in `sablonlar/ilk-mesajlar.md`.
+Status table: when the proxy wants to know where the team stands, it asks the lead for a table: for each open piece of work, the work, percent done, time left and what that estimate rests on; then the next three pieces of work. The lead does not fill in the developer's row from its own guess; it asks the developer and writes down what the developer says; the table shows whose estimate each one is. If the lead sees it differently, it does not change the developer's estimate; it adds a "Lider görüşü" (lead's view) line under the table. Percent and time are estimates; an estimate with no stated basis does not go into the table. The ready-made text is in `sablonlar/ilk-mesajlar.md`.
 
 ---
 

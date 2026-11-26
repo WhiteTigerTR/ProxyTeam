@@ -8,7 +8,7 @@
 //   node araclar/mola.mjs [mola]     Durmak güvenli mi? Güvenliyse kayıt "molada" olur, çıkış 0.
 //                                    Değilse neyin durması gerektiğini satır satır yazar, çıkış 1.
 //   node araclar/mola.mjs bitti      Kayıt "çalışıyor" olur. Kopyalar molaya girerken kaydedilen commit'te mi,
-//                                    bakar. Fark varsa yazar, çıkış 1.
+//                                    bakar. Fark varsa yazar, çıkış 1. Rafta (git stash) iş varsa uyarır.
 //
 // Seçenekler: --kok <yol> (denetlenecek depo; varsayılan bulunulan klasörün deposu),
 //             --ayar <yol> (ayar dosyası; varsayılan ana kopyadaki .vekilekip.json).
@@ -35,6 +35,7 @@
 //                                    If not, it lists line by line what has to stop, exit 1.
 //   node araclar/mola.mjs bitti      The record becomes "çalışıyor" (working). Checks whether the working copies are
 //                                    at the commit recorded when the break started. Prints any difference, exit 1.
+//                                    Warns if there is stashed work (git stash).
 //
 // Options: --kok <path> (repository to check; default is the repository of the current folder),
 //          --ayar <path> (config file; default is .vekilekip.json in the main working copy).
@@ -542,6 +543,8 @@ function ana() {
       onceki?.durum === "molada" && Array.isArray(onceki.kopyalar)
         ? molaFarki(onceki.kopyalar, bulgular.kopyalar)
         : [`kayıtlı bir mola yok (${ayar.kayit}); önce "mola" güvenli dönmeliydi`];
+    // Rafa kaldırılmış iş moladan dönerken unutulmasın. / EN: So stashed work is not forgotten when the break ends.
+    if (bulgular.raf > 0) console.log(`UYARI  rafta (git stash) ${bulgular.raf} kayıt var; devam etmeden önce bak (git stash list)`);
     yaz(kayitYolu, { durum: "çalışıyor", zaman, molaBaslangici: onceki?.durum === "molada" ? onceki.zaman : null, kopyalar: bulgular.kopyalar.map(({ yol, dal, commit }) => ({ yol, dal, commit })), farklar });
     if (farklar.length) {
       console.log("Mola bitti, ama kopyalar molaya girerken kaydedilen yerde değil:");
