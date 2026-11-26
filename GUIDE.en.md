@@ -271,7 +271,7 @@ When working from the phone: you write to the proxy session with Remote Control 
 | Way | What you do from the phone | Protection |
 |---|---|---|
 | Approval over SSH | You connect to your computer from the phone over SSH and run `node araclar/canli.mjs onayla`. | The strongest. No extra setting needed. |
-| Approval by message | You write `canlı onay <short id>` to a session, as the whole message. The approval file is written not by the model but by the approval hook that sees your message (`sablonlar/ornekler/kanca-onay.mjs`). It requires `canli.mesajlaOnay: true` and the hook to be installed. | Medium. Anyone who can open the session can type this sentence. **Not tried in a live session:** test in your own setup that the hook runs on Remote Control messages and does not count messages from the other sessions as approval (the steps are at the top of the script). |
+| Approval by message | You write `canlı onay <short id>` to a session, as the whole message. The approval file is written not by the model but by the approval hook that sees your message (`sablonlar/ornekler/kanca-onay.mjs`). It requires `canli.mesajlaOnay: true` and the hook to be installed. | Medium. Anyone who can open the session can type this sentence. A session could also approve for itself by starting a new Claude process and feeding it the sentence; the role hook blocks shell commands that contain the sentence, but it matches patterns and will not catch an indirect route (for example, having the sentence read from a file). So do not turn on approval by message unless the role hook is installed. **Not tried in a live session:** test in your own setup that the hook runs on Remote Control messages and does not count messages from the other sessions as approval (the steps are at the top of the script). |
 | Giving the authority to the proxy | `canli.yetki: "vekil"` in that project. You write "canlıya çık" (deploy to production) to the proxy; your message goes into the decision record. | Relies on the rule alone: nothing mechanically stops the proxy from deploying without a message from you. |
 
 #### Independent reviewer
@@ -446,7 +446,7 @@ Fix: each run in its own worktree; if both are needed on the same machine at onc
 If you like, install the example hook (`sablonlar/ornekler/kanca-sir-koruma.mjs`).
 
 **Ending up in the wrong environment through address autocomplete.**
-The browser's address bar completes the most recently visited address: you think you are trying it in production and you are on `dev.ornek.com`, or the other way round.
+The browser's address bar completes the most recently visited address: you think you are trying it in production and you are on `dev.example.com`, or the other way round.
 When opening a link, do not type the address; paste it, and look at the address bar before pressing Enter.
 Fix: a version badge in both environments; the badge should be visible in the screenshot in the report.
 

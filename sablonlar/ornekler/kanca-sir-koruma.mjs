@@ -32,7 +32,13 @@ const SIR_KALIPLARI = [
 ];
 // İçerik gösteren komutlar. Yoklama (wc -c, test -s, ls) serbesttir.
 // EN: Commands that reveal content. Probing (wc -c, test -s, ls) is allowed.
-const GOSTEREN = /(^|[\s;|&(])(cat|head|tail|less|more|grep|rg|awk|sed|strings|xxd|od|hexdump|bat|nl|base64|cp|scp|curl)\s/;
+// İçeriği ekrana ya da başka bir yere taşıyabilen komutlar. "source" ve "." listede yok: sırrı ortam değişkenine
+// almanın (aracın okumasının) doğru yolu odur. Betik dilleri yalnız satır içi kodla çağrıldığında sayılır.
+// EN: Commands that can move the contents to the screen or elsewhere. "source" and "." are not listed: that is the
+// right way to load a secret into the environment (so the tool reads it). Script languages count only when
+// called with inline code.
+const GOSTEREN =
+  /(^|[\s;|&(])((cat|head|tail|less|more|grep|rg|awk|sed|strings|xxd|od|hexdump|bat|nl|base64|cp|scp|curl|cut|jq|diff|sort|uniq|tr|paste|tee|printenv)\s|(python3?|node|ruby|perl)\s+(-c|-e|-p|--eval|--print)\b)/;
 
 function oku() {
   return new Promise((coz) => {

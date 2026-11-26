@@ -10,8 +10,9 @@
 // Rol verilmemiş (ya da başka bir değer verilmiş) oturumda yalnız "herkes için" kurallar çalışır.
 //
 // Kurallar:
-//   herkes        Canlı onayını kendisi veremez: "canli.mjs ... onayla" çağrısı, onay dosyasına araçla yazma ve
-//                 onay dosyasının adını anan her kabuk komutu durur.
+//   herkes        Canlı onayını kendisi veremez: "canli.mjs ... onayla" çağrısı, onay dosyasına araçla yazma,
+//                 onay dosyasının adını anan her kabuk komutu ve onay cümlesini ("canlı onay <commit>") içeren
+//                 her kabuk komutu durur.
 //   vekil         Edit/Write araçlarıyla yalnız yerel/vekil/ ve docs/kararlar/ altına yazar. Kabukta dosyaya
 //                 yönlendirme (>, >>, tee, sed -i) ve birleştirme, gönderme (merge, rebase, reset, push, cherry-pick) durur.
 //   gelistirici   Canlı dalındaki (.vekilekip.json → canli.dal; varsayılan main) bir çalışma kopyasında dosya değiştiremez,
@@ -37,7 +38,8 @@
 //
 // Rules:
 //   everyone      Cannot approve a production deploy itself: a "canli.mjs ... onayla" call, a tool write to the
-//                 approval file, and any shell command that mentions the approval file's name are blocked.
+//                 approval file, any shell command that mentions the approval file's name, and any shell
+//                 command that contains the approval sentence ("canlı onay <commit>") are blocked.
 //   vekil         (proxy) With Edit/Write it can write only under yerel/vekil/ and docs/kararlar/. In the shell,
 //                 redirecting to a file (>, >>, tee, sed -i) and merging or pushing (merge, rebase, reset, push,
 //                 cherry-pick) are blocked.
@@ -62,6 +64,8 @@ export const YAZAN_ARACLAR = new Set(["Edit", "Write", "MultiEdit", "NotebookEdi
 export const ALT_AJAN_ARACLARI = new Set(["Agent", "Task"]);
 const VEKIL_YAZABILIR = ["yerel/vekil/", "docs/kararlar/"];
 
+/** Dal adını düzenli ifadede düz metin olarak kullanmak için kaçışlar. / EN: Escapes a branch name for literal use in a regular expression. */
+const kacis = (s) => String(s).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 const git = (re) => new RegExp(`(^|[\\s;|&(])git\\s+(-C\\s+\\S+\\s+)?(${re})(\\s|$)`);
 const GIT_BIRLESTIR_GONDER = git("merge|rebase|reset|push|cherry-pick");
 const GIT_YAZAN = git("commit|merge|rebase|reset|push|cherry-pick|revert|am");
@@ -120,6 +124,9 @@ export function denetle(girdi, ortam) {
   // EN: everyone: production approval (the approval file lives in the main copy; a full-path write from another copy is blocked too)
   if (dosya === onay || tamDosya.endsWith("/" + onay)) return "Canlı onayını yalnız proje sahibi verir. Onay dosyasına yazılmaz.";
   if (/canli\.mjs\b[^;|&]*\bonayla\b/.test(komut)) return "Canlı onayını yalnız proje sahibi, kendi terminalinde verir.";
+  // Onay cümlesi bir komutla da gönderilemez (ör. yeni bir Claude süreci başlatıp ona yazdırmak).
+  // EN: The approval sentence cannot be sent through a command either (e.g. by starting a new Claude process and feeding it the sentence).
+  if (/canl[ıi]\s+onay[:\s]+[0-9a-f]{7,40}/i.test(komut)) return "Canlı onayı cümlesi bir komutla gönderilmez. Onayı yalnız proje sahibi, kendi yazdığı mesajla ya da kendi terminalinde verir.";
   if (komut.includes(path.basename(onay))) return "Onay dosyasına komutla dokunulmaz. Durumu görmek için: node araclar/canli.mjs durum";
 
   if (ortam.rol === "vekil") {
@@ -137,7 +144,7 @@ export function denetle(girdi, ortam) {
       if (GIT_YAZAN.test(komut)) return `Geliştirici ${ortam.canliDal} dalında commit, birleştirme ya da gönderme yapmaz; ${ortam.canliDal} dalına lider birleştirir.`;
       if (KABUK_YAZAN.test(komut)) return `Geliştirici ${ortam.canliDal} dalındaki kopyada kabuk komutuyla dosyaya yazmaz.`;
     }
-    if (new RegExp(`git\\s+push\\s+.*\\b${ortam.canliDal}\\b`).test(komut)) return `Geliştirici ${ortam.canliDal} dalına göndermez.`;
+    if (new RegExp(`git\\s+push\\s+.*\\b${kacis(ortam.canliDal)}\\b`).test(komut)) return `Geliştirici ${ortam.canliDal} dalına göndermez.`;
   }
   return null;
 }

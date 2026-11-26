@@ -6,7 +6,7 @@ Yöntemin ne olduğunu ve neden işe yaradığını [KILAVUZ.md](KILAVUZ.md) anl
 
 ## 0. Gerekenler
 
-- macOS ya da Linux (Windows'ta WSL). git, bash, Node.js 18 ya da üstü (`node --version`).
+- macOS ya da Linux (Windows'ta WSL). git, bash, Node.js 18 ya da üstü (`node --version`). Ölçüm aracı için Python 3 (`python3 --version`); ölçmeyecekseniz gerekmez.
 - Claude Code (`claude --version`).
 - Bir git deposu olan proje klasörü. Yoksa: `git init`.
 

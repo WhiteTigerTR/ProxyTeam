@@ -8,7 +8,7 @@ The kit itself is in Turkish: file names, commands, the installer's questions an
 
 ## 0. What you need
 
-- macOS or Linux (WSL on Windows). git, bash, Node.js 18 or later (`node --version`).
+- macOS or Linux (WSL on Windows). git, bash, Node.js 18 or later (`node --version`). Python 3 for the measurement script (`python3 --version`); not needed if you will not measure.
 - Claude Code (`claude --version`).
 - A project folder that is a git repository. If it is not: `git init`.
 

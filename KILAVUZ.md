@@ -266,7 +266,7 @@ Telefondan çalışırken: Remote Control ile vekil oturumuna her zamanki gibi y
 | Yol | Telefondan ne yaparsınız | Koruma |
 |---|---|---|
 | SSH ile onay | Telefondan bilgisayarınıza SSH ile bağlanıp `node araclar/canli.mjs onayla` çalıştırırsınız. | En güçlü. Ek ayar gerekmez. |
-| Mesajla onay | Bir oturuma, mesajın tamamı olarak `canlı onay <kısa kimlik>` yazarsınız. Onay dosyasını model değil, mesajınızı gören onay kancası yazar (`sablonlar/ornekler/kanca-onay.mjs`). `canli.mesajlaOnay: true` ve kancanın kurulu olması gerekir. | Orta. Oturumu açabilen herkes bu cümleyi yazabilir. **Canlı oturumda denenmedi:** kancanın Remote Control mesajlarında çalıştığını ve öbür oturumlardan gelen mesajları onay saymadığını kendi kurulumunuzda deneyin (adımlar betiğin başında). |
+| Mesajla onay | Bir oturuma, mesajın tamamı olarak `canlı onay <kısa kimlik>` yazarsınız. Onay dosyasını model değil, mesajınızı gören onay kancası yazar (`sablonlar/ornekler/kanca-onay.mjs`). `canli.mesajlaOnay: true` ve kancanın kurulu olması gerekir. | Orta. Oturumu açabilen herkes bu cümleyi yazabilir. Bir oturum da yeni bir Claude süreci başlatıp cümleyi ona yazdırarak onayı kendi verebilir; rol kancası bu cümleyi içeren kabuk komutunu durdurur, ama kalıpla çalışır ve dolaylı bir yolu (ör. cümleyi bir dosyadan okutmak) yakalamaz. Bu yüzden mesajla onay, rol kancası kurulu değilken açılmamalıdır. **Canlı oturumda denenmedi:** kancanın Remote Control mesajlarında çalıştığını ve öbür oturumlardan gelen mesajları onay saymadığını kendi kurulumunuzda deneyin (adımlar betiğin başında). |
 | Yetkiyi vekile vermek | O projede `canli.yetki: "vekil"`. Vekile "canlıya çık" yazarsınız; mesajınız karar kaydına geçer. | Kurala dayanır: vekilin siz yazmadan çıkmasını engelleyen bir mekanizma yoktur. |
 
 #### Bağımsız göz
@@ -441,7 +441,7 @@ Biri öbürünün değişikliğini ezer ya da yarım dosyayı commit eder. Çöz
 İsterseniz örnek kancayı kurun (`sablonlar/ornekler/kanca-sir-koruma.mjs`).
 
 **Adres tamamlamayla yanlış ortama girmek.**
-Tarayıcı adres çubuğu en son girilen adresi tamamlar: canlıda denediğinizi sanırken `dev.ornek.com`'dasınız, ya da tersi.
+Tarayıcı adres çubuğu en son girilen adresi tamamlar: canlıda denediğinizi sanırken `dev.example.com`'dasınız, ya da tersi.
 Bir bağlantıyı açarken adresi elle yazmayın, yapıştırın ve Enter'dan önce adres çubuğuna bakın.
 Çözüm: iki ortamda da sürüm rozeti; rapordaki görüntüde rozet görünsün.
 

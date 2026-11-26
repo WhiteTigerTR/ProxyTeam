@@ -30,7 +30,17 @@ test("herkes: canlı onayı verilemez", () => {
     assert.ok(denetle(bash("echo '{}' > yerel/canli-onay.json"), ortam(rol)), rol);
     assert.equal(denetle(bash("node araclar/canli.mjs denetle"), ortam(rol)), null, rol);
     assert.equal(denetle(bash("node araclar/canli.mjs kullan"), ortam(rol)), null, rol);
+    // onay cümlesi yeni bir Claude sürecine komutla yazdırılamaz / EN: the approval sentence cannot be fed to a new Claude process
+    assert.ok(denetle(bash('claude -p "canlı onay 1a2b3c4"'), ortam(rol)), rol);
+    assert.ok(denetle(bash("echo 'canli onay: 1a2b3c4d5e' | claude"), ortam(rol)), rol);
+    assert.equal(denetle(bash('git log --grep "canlı onay"'), ortam(rol)), null, rol);
   }
+});
+
+test("geliştirici: canlı dalının adı düzenli ifade olarak yorumlanmaz", () => {
+  const o = { ...ortam("gelistirici"), canliDal: "yayin.1", dal: "is/0007" };
+  assert.ok(denetle(bash("git push origin yayin.1"), o));
+  assert.equal(denetle(bash("git push origin yayinx1"), o), null);
 });
 
 test("vekil: yalnız rapor ve karar yazar; birleştirmez, göndermez", () => {
@@ -72,6 +82,13 @@ test("sır kancası: sır dosyası durur, örnek dosya ve yoklama serbest", () =
   assert.equal(sirDenetle({ tool_name: "Bash", tool_input: { command: "cat .env.example" } }), null);
   assert.equal(sirDenetle({ tool_name: "Bash", tool_input: { command: "wc -c .env" } }), null);
   assert.equal(sirDenetle({ tool_name: "Bash", tool_input: { command: "test -s .env" } }), null);
+  for (const k of ["cut -d= -f2 .env", "jq . sirlar/anahtar.json", "sort .env", "tr -d x < .env", "python3 -c \"print(open('.env').read())\"", "node -e \"console.log(require('fs').readFileSync('.env','utf8'))\""]) {
+    assert.ok(sirDenetle({ tool_name: "Bash", tool_input: { command: k } }), k);
+  }
+  // sırrı ortam değişkenine almak ve aracı çalıştırmak serbest / EN: loading the secret into the environment and running the tool is allowed
+  for (const k of ["set -a; . ./.env; set +a; node araclar/seslendir.mjs", "source .env && npm test", "node --env-file=.env sunucu.mjs", "python3 betik.py"]) {
+    assert.equal(sirDenetle({ tool_name: "Bash", tool_input: { command: k } }), null, k);
+  }
 });
 
 test("herkes: onay dosyası başka bir komutla birlikte de anılamaz; onayla araya seçenek girse de durur", () => {

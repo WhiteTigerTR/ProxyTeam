@@ -178,7 +178,7 @@ test("mola bitti: kaydedilen commit, dal ve kopya karşılaştırması", () => {
 // ---- uçtan uca: gerçek git deposu / EN: end to end: a real git repository ----
 
 function git(cwd, ...arg) {
-  return execFileSync("git", ["-c", "user.name=deneme", "-c", "user.email=deneme@ornek.com", "-c", "core.hooksPath=/dev/null", "-c", "commit.gpgsign=false", ...arg], {
+  return execFileSync("git", ["-c", "user.name=deneme", "-c", "user.email=deneme@example.com", "-c", "core.hooksPath=/dev/null", "-c", "commit.gpgsign=false", ...arg], {
     cwd,
     encoding: "utf8",
     stdio: ["ignore", "pipe", "pipe"],

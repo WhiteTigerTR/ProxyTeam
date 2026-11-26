@@ -336,15 +336,22 @@ yerlestir "$KIT/araclar/canli.test.mjs" "$PROJE/araclar/canli.test.mjs"
 yerlestir "$KIT/araclar/olcum.py" "$PROJE/araclar/olcum.py"
 yerlestir "$KIT/araclar/olcum_test.py" "$PROJE/araclar/olcum_test.py"
 
-# .gitignore: yerel/ depoya girmez. / EN: yerel/ stays out of the repository.
+# .gitignore: yerel/ ve Python önbelleği depoya girmez (önbellek girerse ölçüm testinden sonra mola engellenir).
+# EN: yerel/ and the Python cache stay out of the repository (if the cache got in, the break would be blocked
+# after the measurement tests run).
+EKSIK=""
 if [ ! -e "$PROJE/.gitignore" ]; then
-  printf 'yerel/\n' >"$PROJE/.gitignore"
+  printf 'yerel/\n__pycache__/\n' >"$PROJE/.gitignore"
   OLUSAN+=(".gitignore")
-elif grep -Eq '^/?yerel/?$' "$PROJE/.gitignore"; then
-  ATLANAN+=(".gitignore (yerel/ zaten var)")
 else
-  { cat "$PROJE/.gitignore"; printf '\n# VekilEkip: depoya girmeyen yerel dosyalar\nyerel/\n'; } >"$PROJE/.gitignore.yeni"
-  YENI+=(".gitignore.yeni (yerel/ satırı eklendi)")
+  grep -Eq '^/?yerel/?$' "$PROJE/.gitignore" || EKSIK="${EKSIK}yerel/\n"
+  grep -Eq '^(\*\*/)?__pycache__/?$' "$PROJE/.gitignore" || EKSIK="${EKSIK}__pycache__/\n"
+  if [ -z "$EKSIK" ]; then
+    ATLANAN+=(".gitignore (yerel/ ve __pycache__/ zaten var)")
+  else
+    { cat "$PROJE/.gitignore"; printf '\n# VekilEkip: depoya girmeyen yerel dosyalar\n'; printf "$EKSIK"; } >"$PROJE/.gitignore.yeni"
+    YENI+=(".gitignore.yeni (eksik satırlar eklendi: yerel/, __pycache__/)")
+  fi
 fi
 
 # ---- takma adlar (çok hesap) / EN: aliases (multiple accounts) ----
