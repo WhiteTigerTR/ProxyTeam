@@ -313,6 +313,7 @@ Sınırlar:
 - Telefondan yalnız okunan süre ölçülmez; yalnız yazılan mesajlar sayılır.
 - Alt ajan kayıtları da verilmelidir (oturum klasöründe `subagents/` altında); verilmezse ekibin etkin süresi ve token toplamı eksik çıkar. İçlerindeki görev metinleri proje sahibinin mesajı sayılmaz.
 - Birkaç sayı kalıba dayanır; kalıp kullanılmadıysa hata vermez, 0 çıkar. Roller, oturum adında "vekil", "lider" ya da "gelistirici" geçmesiyle tanınır (rol adlarını değiştirdiyseniz "diger" sayılır). Kararlar "Vekil kararı" ve "Lider kararı" sözleriyle, birleştirmeler konusu "Birleştirme" ile başlayan commit'lerle, canlıya çıkışlar konusunda "canlıya yükseltme" geçen commit'lerle sayılır. Tam liste betiğin başındaki açıklamadadır.
+- Oturum çalışırken gelen mesajlar kayda farklı biçimde düşer; araç onları da sayar. İznini proje sahibinin verdiği araç çağrılarının süresi çalışma sayılmaz, `izin_bekleme_dakika` diye ayrı yazılır: o sürenin içinde hem bekleme hem aracın çalışması vardır ve kayıttan ayrılamaz. İzin bilgisi tutmayan eski kayıtlarda bu ayrım yapılamaz. Rapor etiketleri büyük harfle yazılmışsa sayılır.
 - Ücret hesaplanmaz, yalnız token sayılır.
 
 #### Proje sahibi izleme

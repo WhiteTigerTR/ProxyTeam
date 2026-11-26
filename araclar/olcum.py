@@ -30,6 +30,9 @@ Kalıba dayanan sayılar (kalıp kullanılmadıysa 0 çıkar, hata vermez):
     "Sen ... rolündesin" ya da "Sen ... oturumusun" ile başlayan mesajı tanır; farklıysa --istem '<düzenli ifade>' verin.
   - Alt ajan kayıtları (satırda isSidechain: true) verilebilir: etkinlikleri ve tokenları role eklenir; içlerindeki
     görev metni proje sahibinin mesajı sayılmaz (alt_ajan_gorevi diye ayrı sayılır).
+  - Oturum çalışırken gelen mesajlar kayda farklı biçimde düşer (sıraya alınmış komut); proje sahibinden ve öbür
+    oturumlardan gelenler aynı sayaçlara eklenir. Kesme tuşunun bıraktığı satır mesaj sayılmaz (kesinti).
+  - yeni_gorev / yeni_karar: adı "_" ile başlayan dosyalar (kurulumun şablonları) sayılmaz.
 
 Zaman (bölüm "zaman"): hepsi dakika, hepsi tahmin.
   - takvim: --bas ile son olay (ya da --bit) arası.
@@ -38,6 +41,9 @@ Zaman (bölüm "zaman"): hepsi dakika, hepsi tahmin.
     10 dakikadan kısa aralar çalışma sayılır. Ayrıca bir araç çağrısının başından sonucuna kadar geçen süre, ne kadar
     uzun olursa olsun çalışma sayılır (uzun derleme, test, işleme); proje sahibinin yanıtını bekleyen araçlar hariç.
     uzun_arac / uzun_arac_dakika: 10 dakikadan uzun süren araç çağrılarının sayısı ve toplamı.
+    izin_bekleme / izin_bekleme_dakika: iznini proje sahibinin verdiği araç çağrılarının sayısı ve toplam süresi.
+    Bu süre çalışma sayılmaz: içinde hem bekleme hem aracın çalışması vardır ve kayıttan ayrılamaz. Kayıtta izin
+    bilgisi olmayan (eski sürümle tutulmuş) çağrılarda ayrım yapılamaz; onlar çalışma sayılır.
   - ekip_etkin: en az bir oturumun etkin olduğu süre (rollerin birleşimi; üst üste binen süre bir kez sayılır).
   - sahip_yokken_ekip: ekip etkinken proje sahibinin etkin olmadığı süre.
   - ekip_bosta_*: ekibin hiç etkin olmadığı sürenin boşluk uzunluğuna göre dağılımı: 60 dakikaya kadar,
@@ -80,6 +86,9 @@ Pattern-based numbers (if a pattern was never used the count is 0, not an error)
     pattern matches a message starting with "Sen ... rolündesin" or "Sen ... oturumusun"; if yours differs, pass --istem '<regex>'.
   - Subagent logs (lines with isSidechain: true) can be passed in: their activity and tokens are added to the role, and
     the task text inside them is not counted as an owner message (it is counted separately as alt_ajan_gorevi).
+  - Messages that arrive while a session is busy are logged in a different form (a queued command); those from the
+    owner and from other sessions go into the same counters. The line left by the interrupt key is not a message (kesinti).
+  - yeni_gorev / yeni_karar: files whose name starts with "_" (the installer's templates) are not counted.
 
 Time (section "zaman"): all in minutes, all estimates.
   - takvim (calendar): from --bas to the last event (or --bit).
@@ -88,6 +97,9 @@ Time (section "zaman"): all in minutes, all estimates.
     logs; gaps under 10 minutes count as work. In addition, the time from the start of a tool call to its result
     counts as work however long it takes (long builds, tests, processing), except for tools that wait for the owner's reply.
     uzun_arac / uzun_arac_dakika: the number and total duration of tool calls longer than 10 minutes.
+    izin_bekleme / izin_bekleme_dakika: the number and total duration of tool calls whose permission was granted by
+    the owner. This time is not counted as work: it holds both the wait and the tool's own run, and the log cannot
+    separate them. Calls logged without permission data (older versions) cannot be told apart; they count as work.
   - ekip_etkin (team active): time during which at least one session was active (union of the roles; overlaps count once).
   - sahip_yokken_ekip: time the team was active while the owner was not.
   - ekip_bosta_*: time when no session was active, bucketed by gap length: up to 60 minutes, 1 to 3 hours,
@@ -143,6 +155,49 @@ ISTEM_KALIBI = r"\s*Sen\b[^\n]{1,80}?\b(rolündesin|oturumusun)\b"
 BEKLEME_ARACLARI = {"AskUserQuestion", "ExitPlanMode"}
 
 
+def oturumlar_arasi(t, s):
+    """Başka bir oturumdan gelen mesajı sayar: gönderen rol, rapor etiketi, düzeltme ve karar isteği.
+
+    EN: Counts a message that came from another session: sender role, report label, correction and decision request."""
+    r = gelen_rol(t)
+    s[f"gelen_{r}"] += 1
+    govde = re.sub(r"<[^>]+>", "", t).strip()
+    # Etiket ya mesajın ilk sözcüğüdür ("RAPOR: ...") ya da gönderen adından sonraki ilk sözcük ("Lider: RAPOR ...").
+    # EN: The label is either the first word of the message ("RAPOR: ...") or the first word after the sender's
+    # name ("Lider: RAPOR ...").
+    # Etiket büyük harfle yazılır; cümle içindeki "rapor" sözcüğü etiket sayılmaz.
+    # EN: Labels are written in capitals; the word "rapor" inside a sentence is not a label.
+    adaylar = [x.strip().split(" ", 1)[0] for x in (govde, govde.split(":", 1)[-1])] if govde else []
+    for e in ETIKETLER:
+        if any(re.match(re.escape(e) + r"\b", a) for a in adaylar):
+            s[f"etiket_{e}"] += 1
+            break
+    if re.search(r"DÜZELTME|yanlıştı|tahmindi", t):
+        s["gelen_duzeltme"] += 1
+    if re.search(r"[Kk]ararın (gerekiyor|bekliyorum)|[Oo]naylar mısın|[Ss]ana (bir )?soru", t):
+        s["gelen_karar_istegi"] += 1
+
+
+def insan_mesaji_say(t, gorsel, zaman, s, insan_zaman, istem):
+    """Proje sahibinin yazdığı bir mesajı sayar. Sayılmayanlar: boş mesaj, sistem etiketiyle başlayan satır,
+    yapıştırılan rol istemi (rol_istemi), oturumun kesildiğini bildiren satır (kesinti).
+
+    EN: Counts one message written by the owner. Not counted: empty messages, lines that start with a system tag,
+    a pasted role prompt (rol_istemi), and the line that reports an interrupted turn (kesinti)."""
+    if (not t.strip() and not gorsel) or (t.strip().startswith("<") and "pasted_content" not in t):
+        return
+    if t.strip().startswith("[Request interrupted"):
+        s["kesinti"] += 1  # kesme tuşu: mesaj değil / EN: the interrupt key, not a message
+        return
+    if re.match(istem, t):
+        s["rol_istemi"] += 1  # yapıştırılan rol istemi: proje sahibinin mesajı ve etkin süresi sayılmaz / EN: pasted role prompt: not an owner message, no owner active time
+        return
+    s["insan_mesaji"] += 1
+    if gorsel:
+        s["insan_gorsel"] += 1
+    insan_zaman.append(zaman)
+
+
 def oturum_say(yol, bas, s, olaylar=None, bit=None, istem=ISTEM_KALIBI, arac_araliklari=None):
     """Bir oturum kaydını sayar. Proje sahibinin mesaj zamanlarını döndürür; olaylar verilirse
     kayıttaki bütün olay zamanlarını oraya ekler (rolün etkin süresi için).
@@ -151,6 +206,7 @@ def oturum_say(yol, bas, s, olaylar=None, bit=None, istem=ISTEM_KALIBI, arac_ara
     every event timestamp in the log is appended to it (for the role's active time)."""
     insan_zaman = []
     gorulen_yanit = set()
+    normal_metin, sirali_metin = Counter(), Counter()  # iki kayıt biçimi arasında tekilleştirme / EN: de-duplication between the two log forms
     acik_arac = {}  # araç çağrısı kimliği → (başlangıç zamanı, araç adı) / EN: tool call id → (start time, tool name)
     for satir in open(yol, encoding="utf-8"):
         try:
@@ -171,6 +227,29 @@ def oturum_say(yol, bas, s, olaylar=None, bit=None, istem=ISTEM_KALIBI, arac_ara
         if olaylar is not None and d.get("type") in ("user", "assistant"):
             olaylar.append(zaman)
         m = d.get("message") or {}
+        # Oturum çalışırken gelen mesaj kayda "user" satırı olarak değil, sıraya alınmış komut eki olarak düşer.
+        # Kaynağı proje sahibi (human) ya da başka bir oturum (peer) olanlar sayılır; görev bildirimleri sayılmaz.
+        # EN: A message that arrives while the session is busy is logged as a queued-command attachment, not as a
+        # "user" line. Those from the owner (human) or another session (peer) are counted; task notifications are not.
+        ek = d.get("attachment") if d.get("type") == "attachment" else None
+        if isinstance(ek, dict) and ek.get("type") == "queued_command":
+            tur = (ek.get("origin") or {}).get("kind")
+            if ek.get("commandMode") != "prompt" or tur not in ("human", "peer") or d.get("isSidechain") is True:
+                continue
+            if olaylar is not None:
+                olaylar.append(zaman)
+            c = ek.get("prompt")
+            t = metin(c)
+            if tur == "peer" or "<cross-session-message" in t:
+                oturumlar_arasi(t, s)
+                continue
+            anahtar = t.strip()[:200]
+            if normal_metin[anahtar] > 0:  # aynı mesaj kayıtta iki biçimde de durabiliyor: bir kez sayılır / EN: the same message can be logged in both forms: count it once
+                normal_metin[anahtar] -= 1
+                continue
+            sirali_metin[anahtar] += 1
+            insan_mesaji_say(t, gorsel_sayisi(c) or len(ek.get("imagePasteIds") or []), zaman, s, insan_zaman, istem)
+            continue
         if d.get("type") == "user" and m.get("role") == "user":
             c = m.get("content")
             if isinstance(c, list) and any(isinstance(x, dict) and x.get("type") == "tool_result" for x in c):
@@ -183,6 +262,16 @@ def oturum_say(yol, bas, s, olaylar=None, bit=None, istem=ISTEM_KALIBI, arac_ara
                         continue
                     acilis = acik_arac.pop(x.get("tool_use_id"), None)
                     if not acilis or acilis[1] in BEKLEME_ARACLARI:
+                        continue
+                    # İzni proje sahibi verdiyse (kaynak "user..."), çağrının süresi onun yanıtını beklemeyi de içerir;
+                    # bekleme ile çalışma kayıttan ayrılamaz. Süre çalışma sayılmaz, ayrı yazılır.
+                    # EN: If the owner granted the permission (source "user..."), the call's duration includes waiting
+                    # for that answer; waiting and working cannot be told apart in the log. The time is not counted
+                    # as work and is reported separately.
+                    karar = d.get("permissionDecision")
+                    if isinstance(karar, dict) and str(karar.get("source", "")).startswith("user"):
+                        s["izin_bekleme"] += 1
+                        s["izin_bekleme_dakika"] += round((_zaman(zaman) - _zaman(acilis[0])).total_seconds() / 60)
                         continue
                     if arac_araliklari is not None:
                         arac_araliklari.append((acilis[0], zaman))
@@ -201,29 +290,16 @@ def oturum_say(yol, bas, s, olaylar=None, bit=None, istem=ISTEM_KALIBI, arac_ara
                 continue
             t = metin(c)
             if "<cross-session-message" in t:
-                r = gelen_rol(t)
-                s[f"gelen_{r}"] += 1
-                govde = re.sub(r"<[^>]+>", "", t).strip()
-                ilk = govde.split(":", 1)[-1].strip().split(" ", 1)[0].upper() if govde else ""
-                for e in ETIKETLER:
-                    if ilk.startswith(e):
-                        s[f"etiket_{e}"] += 1
-                if re.search(r"DÜZELTME|yanlıştı|tahmindi", t):
-                    s["gelen_duzeltme"] += 1
-                if re.search(r"[Kk]ararın (gerekiyor|bekliyorum)|[Oo]naylar mısın|[Ss]ana (bir )?soru", t):
-                    s["gelen_karar_istegi"] += 1
+                oturumlar_arasi(t, s)
                 continue
             if d.get("isMeta") or d.get("isCompactSummary"):
                 continue
-            if (not t.strip() and not gorsel_sayisi(c)) or (t.strip().startswith("<") and "pasted_content" not in t):
+            anahtar = t.strip()[:200]
+            if sirali_metin[anahtar] > 0:
+                sirali_metin[anahtar] -= 1
                 continue
-            if re.match(istem, t):
-                s["rol_istemi"] += 1  # yapıştırılan rol istemi: proje sahibinin mesajı ve etkin süresi sayılmaz / EN: pasted role prompt: not an owner message, no owner active time
-                continue
-            s["insan_mesaji"] += 1
-            if gorsel_sayisi(c):
-                s["insan_gorsel"] += 1
-            insan_zaman.append(d["timestamp"])
+            normal_metin[anahtar] += 1
+            insan_mesaji_say(t, gorsel_sayisi(c), d["timestamp"], s, insan_zaman, istem)
         elif d.get("type") == "assistant":
             kullanim = m.get("usage")
             kimlik = m.get("id") or d.get("uuid")
@@ -324,6 +400,9 @@ def git_say(depo, bas, bit=None):
     aralik = [f"--since={bas}"] + ([f"--until={bit}"] if bit else [])
     konu = git("log", *aralik, "--format=%s").splitlines()
     govde = git("log", *aralik, "--format=%B")
+    # Adı "_" ile başlayan dosyalar kurulumun bıraktığı şablonlardır; görev ya da karar sayılmaz.
+    # EN: Files whose name starts with "_" are templates left by the installer; they are not tasks or decisions.
+    gercek = lambda e: e.endswith(".md") and not os.path.basename(e).startswith("_")
     eklenen = git("log", *aralik, "--diff-filter=A", "--name-only", "--format=", "--", "docs/gorevler", "docs/kararlar").splitlines()
     return {
         "commit": len(konu),
@@ -333,8 +412,8 @@ def git_say(depo, bas, bit=None):
         "yan_kol": sum(1 for k in konu if "yan kol" in k.lower()),
         "vekil_karari_commit": len(re.findall(r"vekil kararı|vekil onayı", govde, re.I)),
         "proje_sahibi_commit": len(re.findall(r"proje sahibi", govde, re.I)),
-        "yeni_gorev": len({e for e in eklenen if "/gorevler/" in e and e.endswith(".md")}),
-        "yeni_karar": len({e for e in eklenen if "/kararlar/" in e and e.endswith(".md")}),
+        "yeni_gorev": len({e for e in eklenen if "/gorevler/" in e and gercek(e)}),
+        "yeni_karar": len({e for e in eklenen if "/kararlar/" in e and gercek(e)}),
     }
 
 

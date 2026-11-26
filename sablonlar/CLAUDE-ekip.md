@@ -22,6 +22,7 @@ Oturumlar ve hesaplar:
 - Mesajla yalnız görev ve kısa durum gider. İçerik ve sonuç depodaki dosyalara yazılır.
 - {{GELISTIRICI}} ana çalışma kopyasında ve `main` üzerinde çalışmaz; her görev için kendi dalını ve kendi çalışma kopyasını açar (git worktree). `main`e {{LIDER}} birleştirir.
 - Ana kopyada kod yazılmaz. Orada {{LIDER}} birleştirir ve kendi belgelerini yazar; {{VEKIL}} yalnız karar kayıtlarını yazar. Her dosyanın, görev dosyasında ise her bölümün tek yazarı vardır. Commit ederken yalnız kendi dosyanı ver (`git add <dosya> && git commit <dosya> -m ...`); başkasının hazırladığı değişikliği commit'ine katma.
+- Commit konusu: {{LIDER}} birleştirme commit'inin konusunu "Birleştirme" ile başlatır; canlıya çıkışı kaydeden commit'in konusunda "canlıya yükseltme" geçer. Ölçüm aracı (`araclar/olcum.py`) bu iki kalıbı sayar; kalıp kullanılmazsa iki sayı 0 çıkar.
 
 ### Vekil yetkisi
 - **{{VEKIL}} karar verir** (kayda "vekil kararı" diye girer): iş sırası ve öncelik; teknik yöntem; ücretsiz ve açık lisanslı araç ya da varlık deneme; dev ortamına yayın; daha önce konmuş ölçütlere dayanan, geri alınabilir tasarım ayrıntısı.

@@ -318,6 +318,7 @@ Limits:
 - Time spent only reading from the phone is not measured; only written messages are counted.
 - Subagent logs must be given as well (under `subagents/` in the session folder); if they are not, the team's active time and the token total come out incomplete. The task texts inside them are not counted as owner messages.
 - A few numbers rest on patterns; if a pattern was not used there is no error, the result is 0. Roles are recognized by "vekil", "lider" or "gelistirici" appearing in the session name (if you changed the role names, they count as "diger" (other)). Decisions are counted by the phrases "Vekil kararı" and "Lider kararı", merges by commits whose subject starts with "Birleştirme", and production deploys by commits whose subject contains "canlıya yükseltme". The full list is in the comment at the top of the script.
+- Messages that arrive while a session is busy are logged in a different form; the script counts those too. The duration of tool calls whose permission was granted by the owner is not counted as work and is reported separately as `izin_bekleme_dakika`: that time holds both the wait and the tool's own run, and the log cannot separate them. Older logs that carry no permission data cannot be split this way. Report labels are counted only when written in capitals.
 - No cost is calculated; only tokens are counted.
 
 #### Owner monitoring

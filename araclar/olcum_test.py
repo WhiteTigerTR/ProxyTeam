@@ -116,5 +116,98 @@ class UctanUca(unittest.TestCase):
         self.assertIn("kod adı", c.stderr)
 
 
+
+class KayitBicimleri(unittest.TestCase):
+    """Sıraya alınan mesajlar, izin beklemesi, kesinti ve şablon dosyaları.
+    EN: Queued messages, permission waits, interrupts and template files."""
+
+    def say(self, satirlar):
+        with tempfile.TemporaryDirectory() as k:
+            yol = os.path.join(k, "o.jsonl")
+            with open(yol, "w", encoding="utf-8") as f:
+                for x in satirlar:
+                    f.write(json.dumps(x) + "\n")
+            s, olaylar, arac = olcum.Counter(), [], []
+            insan = olcum.oturum_say(yol, z(-60), s, olaylar, None, olcum.ISTEM_KALIBI, arac)
+            return s, insan, arac
+
+    @staticmethod
+    def sirali(d, metin, tur="human", mod="prompt", **ek):
+        return {"type": "attachment", "timestamp": z(d), "attachment": {"type": "queued_command", "prompt": metin, "commandMode": mod, "origin": {"kind": tur} if tur else None, **ek}}
+
+    @staticmethod
+    def insan(d, metin):
+        return {"type": "user", "timestamp": z(d), "message": {"role": "user", "content": metin}}
+
+    def test_sirali_insan_mesaji_sayilir(self):
+        s, insan, _ = self.say([self.insan(0, "başla"), self.sirali(3, "şunu da ekle")])
+        self.assertEqual(s["insan_mesaji"], 2)
+        self.assertEqual(len(insan), 2)
+
+    def test_sirali_oturum_mesaji_role_ve_etikete_yazilir(self):
+        m = '<cross-session-message from-name="Proje-Lider">RAPOR: görev bitti</cross-session-message>'
+        s, insan, _ = self.say([self.sirali(1, m, tur="peer")])
+        self.assertEqual(s["gelen_lider"], 1)
+        self.assertEqual(s["etiket_RAPOR"], 1)
+        self.assertEqual(s["insan_mesaji"], 0)
+        self.assertEqual(insan, [])
+
+    def test_etiket_basta_da_addan_sonra_da_taninir(self):
+        sar = lambda g: f'<cross-session-message from-name="Proje-Lider">{g}</cross-session-message>'
+        s, _, _ = self.say([self.insan(0, sar("SORU: hangisi?")), self.insan(1, sar("Lider: BİLGİ test sürüyor")), self.insan(2, sar("Not: rapor yarın"))])
+        self.assertEqual((s["etiket_SORU"], s["etiket_BİLGİ"], s["etiket_RAPOR"]), (1, 1, 0))
+        self.assertEqual(s["gelen_lider"], 3)
+
+    def test_gorev_bildirimi_ve_alt_ajan_satiri_sayilmaz(self):
+        s, insan, _ = self.say([
+            self.sirali(1, "<task-notification>bitti</task-notification>", tur="task-notification", mod="task-notification"),
+            self.sirali(2, "bildirim", tur=None, mod="task-notification"),
+            {**self.sirali(3, "alt ajana gelen"), "isSidechain": True},
+        ])
+        self.assertEqual(s["insan_mesaji"], 0)
+        self.assertEqual(insan, [])
+
+    def test_iki_bicimde_duran_mesaj_bir_kez_sayilir(self):
+        s, _, _ = self.say([self.sirali(1, "aynı mesaj"), self.insan(2, "aynı mesaj"), self.insan(5, "aynı mesaj")])
+        self.assertEqual(s["insan_mesaji"], 2)  # sıradaki + 2. dakikadaki tek mesaj; 5. dakikadaki ayrı bir mesaj
+
+    def test_sirali_rol_istemi_ve_kesinti_mesaj_sayilmaz(self):
+        s, insan, _ = self.say([
+            self.sirali(1, "Sen bu projede lider rolündesin. ..."),
+            self.insan(2, "[Request interrupted by user]"),
+            self.sirali(3, "[Request interrupted by user for tool use]"),
+        ])
+        self.assertEqual(s["insan_mesaji"], 0)
+        self.assertEqual(s["rol_istemi"], 1)
+        self.assertEqual(s["kesinti"], 2)
+        self.assertEqual(insan, [])
+
+    def test_sahibin_verdigi_izin_calisma_sayilmaz(self):
+        cagri = lambda d, kimlik: {"type": "assistant", "timestamp": z(d), "message": {"id": f"m{kimlik}", "content": [{"type": "tool_use", "id": kimlik, "name": "Bash", "input": {}}]}}
+        sonuc = lambda d, kimlik, karar: {"type": "user", "timestamp": z(d), "message": {"role": "user", "content": [{"type": "tool_result", "tool_use_id": kimlik}]}, **({"permissionDecision": karar} if karar else {})}
+        s, _, arac = self.say([
+            cagri(0, "a"), sonuc(480, "a", {"decision": "accept", "source": "user_temporary"}),  # sekiz saat izin bekledi
+            cagri(500, "b"), sonuc(530, "b", {"decision": "accept", "source": "config"}),  # 30 dakikalık derleme
+            cagri(600, "c"), sonuc(615, "c", None),  # izin bilgisi olmayan eski kayıt
+        ])
+        self.assertEqual(s["izin_bekleme"], 1)
+        self.assertEqual(s["izin_bekleme_dakika"], 480)
+        self.assertEqual(len(arac), 2)  # yalnız b ve c çalışma aralığı
+        self.assertEqual(s["uzun_arac"], 2)
+        self.assertEqual(s["uzun_arac_dakika"], 45)
+
+    def test_sablon_dosyalari_gorev_ve_karar_sayilmaz(self):
+        with tempfile.TemporaryDirectory() as k:
+            git = lambda *a: subprocess.run(["git", "-C", k, "-c", "user.name=t", "-c", "user.email=t@example.com", *a], check=True, capture_output=True)
+            git("init", "-q")
+            for yol in ("docs/gorevler/_sablon.md", "docs/gorevler/0001-ilk.md", "docs/kararlar/_sablon.md", "docs/kararlar/0001-ekip.md"):
+                os.makedirs(os.path.dirname(os.path.join(k, yol)), exist_ok=True)
+                open(os.path.join(k, yol), "w").write("x\n")
+            git("add", "-A")
+            git("commit", "-q", "-m", "kurulum")
+            d = olcum.git_say(k, "2000-01-01T00:00:00+00:00")
+            self.assertEqual((d["yeni_gorev"], d["yeni_karar"]), (1, 1))
+
+
 if __name__ == "__main__":
     unittest.main()
