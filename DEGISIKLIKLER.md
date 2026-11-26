@@ -13,6 +13,7 @@ Kitte neyin değiştiğini ve kiti daha önce kurmuş bir projede ne yapmanız g
 | Ölçüm günlüğü: her giriş hangi araç sürümüyle ölçüldüğünü yazar; sayılar olduğu gibi yayımlanır. | Kendi ölçümünüzü yayımlıyorsanız girişe kitin commit kimliğini yazın. |
 | Bu dosya ve iki dildeki belgelerin eşliğini denetleyen test eklendi. | Bir şey gerekmez. |
 | Karşılama sayfasına "içinde ne var" tablosu eklendi; kılavuzun özet listesine ölçüm maddesi girdi; raporun "iki dakikada okunması" hedef olarak yazıldı. | Bir şey gerekmez. |
+| Karşılama sayfasındaki mola satırı düzeltildi: betik "yarım iş kalmadığını" değil, kaydedilmemiş iş ve çalışan süreç kalmadığını doğrular. Örnek klasörüne etiketli mesaj ve durum tablosu örneği eklendi (`ornek/mesajlar.md`). | Bir şey gerekmez. |
 
 ## 26.11.2026
 

@@ -589,7 +589,7 @@ ProxyTeam/
   sablonlar/geriye-bakis.md     weekly retrospective
   sablonlar/vekilekip.json      settings for the break check and the production gate
   sablonlar/ornekler/           examples that are not installed: secret-protection hook, role hook, approval hook, deploy lock and their tests
-  ornek/                        filled-in example: status, decision, task, proxy report (an invented project)
+  ornek/                        filled-in example: status, decision, task, proxy report, messages between sessions (an invented project)
   OLCUM-GUNLUGU.md              measurement log: first entry 4 December 2026, then three Fridays, Turkish
   MEASUREMENT-LOG.en.md         the same in English
   DEGISIKLIKLER.md              changelog, with what to do in an installed project, Turkish

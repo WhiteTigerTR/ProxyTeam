@@ -9,12 +9,14 @@ Okuma sırası:
 2. [docs/gorevler/0012-gecikme-hatirlatmasi.md](docs/gorevler/0012-gecikme-hatirlatmasi.md): görev, geliştiricinin raporu, liderin incelemesi. İlk turda bağımsız göz bir kusur buluyor.
 3. [docs/DURUM.md](docs/DURUM.md): liderin tuttuğu durum ve devir notu.
 4. [yerel/vekil/rapor.md](yerel/vekil/rapor.md): vekilin proje sahibine raporu. Gerçek projede bu dosya depoya girmez; burada örnek olsun diye duruyor.
+5. [mesajlar.md](mesajlar.md): oturumlar arası üç mesaj: durum tablosu, bir `DÜZELTME`, bir `SORU` ve vekil kararı.
 
 Dikkat edilecekler:
 
 - Her iddianın yanında kanıt var: test sayısı, görüntü yolu, commit kimliği.
 - Rapor "düzeldi" demiyor; neyin düzeldiğini ve neyin kaldığını ayrı yazıyor.
 - Vekil, para gerektiren seçeneği (SMS) kendisi seçmiyor; proje sahibine götürüyor.
+- Lider, yanlış çıkan sözünü `DÜZELTME` etiketiyle geri alıyor; tablodaki her tahminin dayanağı yazılı.
 - Canlıya çıkış bu projede proje sahibinde; rapor ondan onay istiyor.
 
 ## English
@@ -29,10 +31,12 @@ Reading order:
 2. [docs/gorevler/0012-gecikme-hatirlatmasi.md](docs/gorevler/0012-gecikme-hatirlatmasi.md): the task (overdue reminders), the developer's report, the lead's review. In the first round the independent reviewer finds a defect.
 3. [docs/DURUM.md](docs/DURUM.md): the status and handoff note kept by the lead.
 4. [yerel/vekil/rapor.md](yerel/vekil/rapor.md): the proxy's report to the owner. In a real project this file does not go into the repository; it is here only as an example.
+5. [mesajlar.md](mesajlar.md): three messages between sessions: a status table, a `DÜZELTME` (correction), and a `SORU` (question) with the proxy's decision.
 
 Things to notice:
 
 - Every claim has evidence next to it: test count, screenshot path, commit id.
 - The report does not say "fixed"; it states separately what was fixed and what remains.
 - The proxy does not choose the option that costs money (SMS) on its own; it takes that to the owner.
+- The lead takes back a statement that turned out wrong with the `DÜZELTME` label; every estimate in the table states what it rests on.
 - Production deploys in this project are the owner's call; the report asks the owner for approval.

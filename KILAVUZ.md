@@ -580,7 +580,7 @@ ProxyTeam/
   sablonlar/geriye-bakis.md     haftalık geriye bakış
   sablonlar/vekilekip.json      mola denetiminin ve canlı kapısının ayarı
   sablonlar/ornekler/           kurulmayan örnekler: sır koruma kancası, rol kancası, onay kancası, yayın kilidi ve testleri
-  ornek/                        doldurulmuş örnek: durum, karar, görev, vekil raporu (uydurma bir proje)
+  ornek/                        doldurulmuş örnek: durum, karar, görev, vekil raporu, hat mesajları (uydurma bir proje)
   GUIDE.en.md                   bu kılavuzun İngilizcesi
   QUICKSTART.en.md              hızlı kurulumun İngilizcesi
   USAGE.en.md                   kullanım talimatının İngilizcesi
