@@ -6,13 +6,18 @@ calls for you and passes work on to a *lead* and a *developer*. Experimental; ob
 **Türkçe** · Claude Code ile üç oturumlu bir çalışma yöntemi: yalnız *vekil* oturumuyla konuşursunuz; rutin kararları o verir,
 işi *lider*e ve *geliştirici*ye iletir. Deneysel; şimdilik gözlem var, ölçüm yok.
 
-https://github.com/user-attachments/assets/aef53dca-43c2-4105-8004-d0706bac27d9
+<table>
+<tr>
+<th width="50%">Why · Neden</th>
+<th width="50%">How the work flows · İş nasıl akar</th>
+</tr>
+<tr>
+<td><video src="https://github.com/user-attachments/assets/aef53dca-43c2-4105-8004-d0706bac27d9" controls></video></td>
+<td><video src="https://github.com/user-attachments/assets/d4941eea-c0e8-4354-9c5b-1923295a62f0" controls></video></td>
+</tr>
+</table>
 
-The video above is in English, with on-screen text in both languages. Türkçe seslendirmeli sürüm: [tanitim/proxyteam-tr.mp4](tanitim/proxyteam-tr.mp4)
-
-**How the work flows** · **İş nasıl akar** (English voice; headings in both languages / İngilizce ses; başlıklar iki dilde)
-
-https://github.com/user-attachments/assets/d4941eea-c0e8-4354-9c5b-1923295a62f0
+Both videos have an English voice-over, with on-screen headings in both languages. İlk videonun Türkçe seslendirmeli sürümü: [tanitim/proxyteam-tr.mp4](tanitim/proxyteam-tr.mp4)
 
 | | English | Türkçe |
 |---|---|---|
