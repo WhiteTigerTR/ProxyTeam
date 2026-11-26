@@ -16,6 +16,7 @@ What changed in the kit, and what to do in a project where the kit is already in
 | The break row on the landing page was corrected: the script does not verify that "nothing is left half done"; it verifies that no uncommitted work or running process is left. The example folder now has labeled messages and a status table (`ornek/mesajlar.md`). | Nothing. |
 | The status table has a "Tahmin kimin" (whose estimate) column and a "Lider görüşü" (lead's view) line: the lead does not change the developer's estimate, it writes its own view separately. | Update the "Ekip ve hat" section in `CLAUDE.md` and `docs/ekip/ilk-mesajlar.md` together. |
 | `mola.mjs bitti` warns if there is stashed work (`git stash`). Stash entries are listed with their branch name; an entry whose message starts with "yarım" counts as pending half-done work. | Take the new `mola.mjs`. |
+| The videos were redone: the flow video now shows the message labels and has a corrected sentence about the break; the intro video says "ten rules, four safeguards". | Nothing. |
 | Break: if the commit hook will not let half-done work through, the hook is not skipped; the work is stashed with a "yarım" message and a patch is written under `yerel/mola-guvence/`. | Update the `CLAUDE.md` section and `docs/ekip/ilk-mesajlar.md` together. |
 
 ## 26.11.2026
