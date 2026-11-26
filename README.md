@@ -10,6 +10,10 @@ https://github.com/user-attachments/assets/aef53dca-43c2-4105-8004-d0706bac27d9
 
 The video above is in English, with on-screen text in both languages. Türkçe seslendirmeli sürüm: [tanitim/proxyteam-tr.mp4](tanitim/proxyteam-tr.mp4)
 
+**How the work flows** · **İş nasıl akar** (English voice; headings in both languages / İngilizce ses; başlıklar iki dilde)
+
+https://github.com/user-attachments/assets/d4941eea-c0e8-4354-9c5b-1923295a62f0
+
 | | English | Türkçe |
 |---|---|---|
 | Guide / Kılavuz | [README.en.md](README.en.md) | [README.tr.md](README.tr.md) |

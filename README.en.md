@@ -65,7 +65,7 @@ A three-role Claude Code setup and a few rules that hold it together:
 - **Production gate.** Who deploys to production is set per project: the owner or the proxy.
 - **The shared memory is the repository.** Status, decisions and tasks live in files in the repository.
 - **Context cleanup.** When a large piece of work ends: handoff note, commit, `/clear`.
-- **Break protocol.** When "Mola ver" (take a break) is said, all sessions stop without loss in about 5 minutes; a script checks this.
+- **Break protocol.** When "Mola ver" (take a break) is said, all sessions wrap up and stop without loss; the goal is about 5 minutes (the time has not been measured). A script checks the result.
 - **Independent reviewer.** Before acceptance, a subagent looks at the material with no commentary attached.
 - **Verification.** No "it works" without evidence.
 
@@ -564,7 +564,7 @@ VekilEkip/
   ornek/                        filled-in example: status, decision, task, proxy report (an invented project)
   OLCUM-GUNLUGU.md              measurement log: first entry 4 December 2026, then three Fridays, Turkish
   MEASUREMENT-LOG.en.md         the same in English
-  tanitim/                      60-second intro videos (English and Turkish)
+  tanitim/                      videos: the 60-second intro (English and Turkish) and the flow walkthrough (English)
   LICENSE                       MIT
 ```
 

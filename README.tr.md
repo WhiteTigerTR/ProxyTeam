@@ -60,7 +60,7 @@ Benzerleri ve farklar için: [Benzer çalışmalar ve bu kitin yeri](#benzer-ça
 - **Canlı kapısı.** Canlıya kimin çıkacağı proje başına ayarlanır: proje sahibi ya da vekil.
 - **Ortak bellek depodur.** Durum, kararlar ve görevler depodaki dosyalarda durur.
 - **Bağlam temizliği.** Büyük iş bitince devir notu, commit, `/clear`.
-- **Mola protokolü.** "Mola ver" denince bütün oturumlar yaklaşık 5 dakikada kayıpsız durur; bir betik bunu denetler.
+- **Mola protokolü.** "Mola ver" denince bütün oturumlar işini kayıpsız toparlayıp durur; hedef yaklaşık 5 dakikadır (süre ölçülmedi). Bir betik durumu denetler.
 - **Bağımsız göz.** Kabulden önce yorumsuz bir alt ajan malzemeye bakar.
 - **Doğrulama.** Kanıtsız "çalıştı" yok.
 
@@ -559,7 +559,7 @@ VekilEkip/
   USAGE.en.md                   kullanım talimatının İngilizcesi
   MEASUREMENT-LOG.en.md         ölçüm günlüğünün İngilizcesi
   OLCUM-GUNLUGU.md              ölçüm günlüğü: ilk giriş 4 Aralık 2026, sonra üç cuma
-  tanitim/                      60 saniyelik tanıtım videosu (İngilizce ve Türkçe)
+  tanitim/                      tanıtım videoları: 60 saniyelik tanıtım (İngilizce ve Türkçe) ve akış şeması videosu (İngilizce)
   LICENSE                       MIT
 ```
 
