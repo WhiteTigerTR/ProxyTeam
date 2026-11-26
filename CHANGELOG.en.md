@@ -12,6 +12,7 @@ What changed in the kit, and what to do in a project where the kit is already in
 | The setup documents now have a "download the kit" step; the path in the examples is `~/ProxyTeam`. | Nothing. |
 | Measurement log: every entry states which tool version it was measured with; numbers are published as they are. | If you publish your own measurements, put the kit's commit id in the entry. |
 | Added this file, and a test that checks the two language versions of the documents stay in step. | Nothing. |
+| The landing page has a "what is in it" table; the guide's summary list now mentions measurement; reading a report "in two minutes" is stated as a goal. | Nothing. |
 
 ## 26.11.2026
 

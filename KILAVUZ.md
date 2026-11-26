@@ -63,6 +63,7 @@ Benzerleri ve farklar için: [Benzer çalışmalar ve bu kitin yeri](#benzer-ça
 - **Mola protokolü.** "Mola ver" denince bütün oturumlar işini kayıpsız toparlayıp durur; hedef yaklaşık 5 dakikadır (süre ölçülmedi). Bir betik durumu denetler.
 - **Bağımsız göz.** Kabulden önce yorumsuz bir alt ajan malzemeye bakar.
 - **Doğrulama.** Kanıtsız "çalıştı" yok.
+- **Ölçüm.** Her görev dosyasında kısa bir ölçüm bölümü ve oturum kayıtlarını sayan bir betik. Sonuçlar [ölçüm günlüğünde](OLCUM-GUNLUGU.md) yayımlanır.
 
 ### Neden?
 
@@ -324,7 +325,7 @@ Proje sahibi üç oturumu Claude Code'un **Remote Control** özelliğiyle telefo
 oturumuna yazar. Böylece hareket halindeyken de yön verebilir, mola diyebilir, raporu okuyabilir.
 Yetki proje sahibindeyse canlı onayı Remote Control üzerinden, yani bir oturuma yazarak verilemez; bilgisayardaki bir terminalde verilir (bkz. "Canlıya çıkış yetkisi").
 
-Rapor biçimi (telefonda iki dakikada okunur):
+Rapor biçimi (telefonda iki dakikada okunacak uzunlukta tutulur):
 
 ```
 Durum: tek satır

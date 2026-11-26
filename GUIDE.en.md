@@ -68,6 +68,7 @@ A three-role Claude Code setup and a few rules that hold it together:
 - **Break protocol.** When "Mola ver" (take a break) is said, all sessions wrap up and stop without loss; the goal is about 5 minutes (the time has not been measured). A script checks the result.
 - **Independent reviewer.** Before acceptance, a subagent looks at the material with no commentary attached.
 - **Verification.** No "it works" without evidence.
+- **Measurement.** A short measurement section in every task file and a script that counts from the session logs. Results are published in the [measurement log](MEASUREMENT-LOG.en.md).
 
 ### Why?
 
@@ -329,7 +330,7 @@ The owner watches the three sessions from the phone with Claude Code's **Remote 
 session. This way they can give direction, call a break and read the report while on the move.
 If the authority is the owner's, production approval cannot be given over Remote Control, that is, by writing to a session; it is given in a terminal on the computer (see "Production deploy authority").
 
-Report format (read on the phone in two minutes; the labels are the kit's Turkish ones, with the meaning after each):
+Report format (kept short enough to read on the phone in two minutes; the labels are the kit's Turkish ones, with the meaning after each):
 
 ```
 Durum: (status) one line

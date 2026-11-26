@@ -21,6 +21,19 @@ Both videos have an English voice-over, with on-screen headings in both language
 
 Video files / Video dosyaları: [intro, English](tanitim/proxyteam-en.mp4) · [tanıtım, Türkçe](tanitim/proxyteam-tr.mp4) · [flow, English](tanitim/proxyteam-flow-en.mp4)
 
+**What is in it · İçinde ne var**
+
+| English | Türkçe |
+|---|---|
+| **A proxy with written authority.** It makes the routine calls and logs each one; money, secrets, deleting data and anything hard to undo come back to you. | **Yetkisi yazılı bir vekil.** Rutin kararları verir, her birini kayda geçirir; para, sır, veri silme ve geri dönüşü zor her şey size gelir. |
+| **A production gate.** Per project: you approve that exact commit, or the proxy decides. | **Canlı kapısı.** Projeye göre: o commit'i siz onaylarsınız ya da vekil karar verir. |
+| **The repo as shared memory.** Status, decisions, tasks and handoff notes are files; a new session starts from them. | **Ortak bellek olarak depo.** Durum, kararlar, görevler ve devir notları dosyadır; yeni oturum oradan başlar. |
+| **Evidence and a blind reviewer.** No "it works" without proof; before acceptance a subagent sees only the material. | **Kanıt ve bağımsız göz.** Kanıtsız "çalıştı" yok; kabulden önce bir alt ajan yalnız malzemeyi görür. |
+| **A break you can check.** "Take a break" stops every session; a script verifies nothing is left half done. | **Denetlenebilen mola.** "Mola ver" bütün oturumları durdurur; bir betik yarım iş kalmadığını doğrular. |
+| **Measurement instead of claims.** Task files and a script keep the numbers; the log is published as it comes out. | **İddia yerine ölçüm.** Sayıları görev dosyaları ve bir betik tutar; günlük, çıktığı gibi yayımlanır. |
+
+Most of these parts are known practices; what the kit adds is the proxy and how the parts fit together. Bu parçaların çoğu bilinen yöntemlerdir; kitin eklediği, vekil ve parçaların bir araya getirilişidir.
+
 | | English | Türkçe |
 |---|---|---|
 | Guide / Kılavuz | [GUIDE.en.md](GUIDE.en.md) | [KILAVUZ.md](KILAVUZ.md) |
