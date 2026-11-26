@@ -1,6 +1,6 @@
 # ProxyTeam (VekilEkip): a three-session way of working with Claude Code
 
-English · [Türkçe](README.tr.md)
+English · [Türkçe](KILAVUZ.md)
 
 *Vekil* means proxy or delegate in Turkish; *ekip* means team, hence the repository name ProxyTeam.
 
@@ -10,7 +10,7 @@ The lead splits the work, reviews, merges and deploys. The **developer** (geliş
 the git repository; chat history is not trusted. The aim: the owner is not a bottleneck, decisions are not lost, sessions
 stop and resume without loss, and work called "done" is done with evidence.
 
-Quick setup: [QUICKSTART.en.md](QUICKSTART.en.md). Türkçe kılavuz: [README.tr.md](README.tr.md). A filled-in example: [ornek/](ornek/).
+Quick setup: [QUICKSTART.en.md](QUICKSTART.en.md). Türkçe kılavuz: [KILAVUZ.md](KILAVUZ.md). A filled-in example: [ornek/](ornek/).
 
 > **Status: experimental.** This kit is an experience report: it was used on two projects, by one person, for a few days.
 > The benefits below are goals, not yet measured results. The kit now keeps the records needed to measure cost and gain
@@ -535,8 +535,8 @@ with a [measurement log](MEASUREMENT-LOG.en.md). If you know of something simila
 ```
 VekilEkip/
   README.md                     landing page (two languages, video)
-  README.tr.md                  the guide in Turkish
-  README.en.md                  this guide
+  KILAVUZ.md                    the guide in Turkish
+  GUIDE.en.md                   this guide
   HIZLI-BASLANGIC.md            setup in 10 minutes (an empty project or one that is a git repository), Turkish
   QUICKSTART.en.md              the same in English
   KULLANIM-TALIMATI.md          step-by-step setup in an existing folder without git, and day-to-day use, Turkish

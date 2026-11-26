@@ -2,7 +2,7 @@
 
 [English](QUICKSTART.en.md) · Türkçe
 
-Yöntemin ne olduğunu ve neden işe yaradığını [README.tr.md](README.tr.md) anlatır. Bu sayfa yalnız kurulumdur. Klasörünüz doluysa ya da git deposu değilse [KULLANIM-TALIMATI.md](KULLANIM-TALIMATI.md) ile ilerleyin.
+Yöntemin ne olduğunu ve neden işe yaradığını [KILAVUZ.md](KILAVUZ.md) anlatır. Bu sayfa yalnız kurulumdur. Klasörünüz doluysa ya da git deposu değilse [KULLANIM-TALIMATI.md](KULLANIM-TALIMATI.md) ile ilerleyin.
 
 ## 0. Gerekenler
 
@@ -108,4 +108,4 @@ Mola: vekile "Mola ver." yazın. Dönüşte: "Mola bitti."
 
 Canlıya çıkış (yetki sizdeyse): kendi terminalinizde `node araclar/canli.mjs onayla`. Oturumlar bu onayı veremez.
 
-Kuralları denetime çevirmek için: `sablonlar/ornekler/` içindeki rol ve sır kancaları (kurulmaz; README'de "Önerilen eklemeler").
+Kuralları denetime çevirmek için: `sablonlar/ornekler/` içindeki rol ve sır kancaları (kurulmaz; [kılavuzda](KILAVUZ.md) "Önerilen eklemeler").

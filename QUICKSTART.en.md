@@ -2,7 +2,7 @@
 
 English · [Türkçe](HIZLI-BASLANGIC.md)
 
-[README.en.md](README.en.md) explains what the method is and why it helps. This page covers installation only. If your folder already has content in it or is not a git repository, follow [USAGE.en.md](USAGE.en.md) instead.
+[GUIDE.en.md](GUIDE.en.md) explains what the method is and why it helps. This page covers installation only. If your folder already has content in it or is not a git repository, follow [USAGE.en.md](USAGE.en.md) instead.
 
 The kit itself is in Turkish: file names, commands, the installer's questions and the script output. They are quoted here exactly as they appear, with the English meaning in parentheses.
 
@@ -110,4 +110,4 @@ Taking a break: tell the proxy "Mola ver." (take a break). When you are back: "M
 
 Production deploys (if that decision is yours): in your own terminal, run `node araclar/canli.mjs onayla` ("approve"). Sessions cannot give this approval.
 
-To have the rules enforced by checks, see the role and secret hooks in `sablonlar/ornekler/` (not installed; see [Suggested additions](README.en.md#suggested-additions) in the guide).
+To have the rules enforced by checks, see the role and secret hooks in `sablonlar/ornekler/` (not installed; see [Suggested additions](GUIDE.en.md#suggested-additions) in the guide).

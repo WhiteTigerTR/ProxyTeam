@@ -4,7 +4,7 @@ English · [Türkçe](KULLANIM-TALIMATI.md)
 
 This guide comes out of a real installation. The scenario: a working folder that holds notes, backups and documents and is not yet a git repository; one Claude account; three sessions (proxy, lead, developer).
 
-[QUICKSTART.en.md](QUICKSTART.en.md) assumes a project that is empty or already a git repository. If your folder already has content in it or is not a git repository, follow this guide. [README.en.md](README.en.md) explains what the method is and why it helps.
+[QUICKSTART.en.md](QUICKSTART.en.md) assumes a project that is empty or already a git repository. If your folder already has content in it or is not a git repository, follow this guide. [GUIDE.en.md](GUIDE.en.md) explains what the method is and why it helps.
 
 It takes about 15 minutes in total. Each step tells you what to type, what you should see, and what to do if something goes wrong.
 

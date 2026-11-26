@@ -1,6 +1,6 @@
 # VekilEkip: çok oturumlu Claude Code çalışma yöntemi
 
-[English](README.en.md) · Türkçe
+[English](GUIDE.en.md) · Türkçe
 
 VekilEkip, bir yazılım projesini üç Claude Code oturumuyla yürütmek için bir yöntem ve küçük bir araç kitidir.
 Proje sahibi yalnız bir oturumla, **vekil** ile konuşur. Vekil rutin kararları onun yerine verir ve **lider**e iletir.
@@ -8,7 +8,7 @@ Lider işi böler, inceler, birleştirir ve yayımlar. **Geliştirici** yalnız 
 git deposudur; sohbet geçmişine güvenilmez. Amaç: proje sahibinin tıkaç olmaması, kararların kaybolmaması, oturumların
 kayıpsız durup devam etmesi ve "bitti" denen işin kanıtıyla bitmiş olması.
 
-Hızlı kurulum için: [HIZLI-BASLANGIC.md](HIZLI-BASLANGIC.md). English: [README.en.md](README.en.md). Doldurulmuş bir örnek: [ornek/](ornek/).
+Hızlı kurulum için: [HIZLI-BASLANGIC.md](HIZLI-BASLANGIC.md). English: [GUIDE.en.md](GUIDE.en.md). Doldurulmuş bir örnek: [ornek/](ornek/).
 
 > **Durum: deneysel.** Bu kit bir deneyim paylaşımıdır: iki projede, tek kişi tarafından, birkaç gün kullanıldı.
 > Aşağıdaki faydalar hedeftir, henüz ölçülmüş sonuç değildir. Kit, maliyeti ve kazancı ölçmeye yarayacak kayıtları artık
@@ -530,7 +530,7 @@ izlenen açık bir soru olarak sunulması. Benzerini biliyorsanız bir kayıt (i
 ```
 VekilEkip/
   README.md                     karşılama sayfası (iki dil, video)
-  README.tr.md                  bu kılavuz
+  KILAVUZ.md                    bu kılavuz
   HIZLI-BASLANGIC.md            10 dakikada kurulum (boş ya da git deposu olan proje)
   KULLANIM-TALIMATI.md          var olan, git'siz klasöre adım adım kurulum ve gündelik kullanım
   kurulum/kur.sh                etkileşimli kurulum (tek ya da çok hesap)
@@ -554,7 +554,7 @@ VekilEkip/
   sablonlar/vekilekip.json      mola denetiminin ve canlı kapısının ayarı
   sablonlar/ornekler/           kurulmayan örnekler: sır koruma kancası, rol kancası, onay kancası, yayın kilidi ve testleri
   ornek/                        doldurulmuş örnek: durum, karar, görev, vekil raporu (uydurma bir proje)
-  README.en.md                  bu kılavuzun İngilizcesi
+  GUIDE.en.md                   bu kılavuzun İngilizcesi
   QUICKSTART.en.md              hızlı kurulumun İngilizcesi
   USAGE.en.md                   kullanım talimatının İngilizcesi
   MEASUREMENT-LOG.en.md         ölçüm günlüğünün İngilizcesi

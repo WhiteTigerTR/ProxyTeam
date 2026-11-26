@@ -21,7 +21,7 @@ Click a cover to watch. Both videos have an English voice-over, with on-screen h
 
 | | English | Türkçe |
 |---|---|---|
-| Guide / Kılavuz | [README.en.md](README.en.md) | [README.tr.md](README.tr.md) |
+| Guide / Kılavuz | [GUIDE.en.md](GUIDE.en.md) | [KILAVUZ.md](KILAVUZ.md) |
 | Quick start / Hızlı kurulum | [QUICKSTART.en.md](QUICKSTART.en.md) | [HIZLI-BASLANGIC.md](HIZLI-BASLANGIC.md) |
 | Step-by-step use / Adım adım kullanım | [USAGE.en.md](USAGE.en.md) | [KULLANIM-TALIMATI.md](KULLANIM-TALIMATI.md) |
 | Measurement log / Ölçüm günlüğü | [MEASUREMENT-LOG.en.md](MEASUREMENT-LOG.en.md) | [OLCUM-GUNLUGU.md](OLCUM-GUNLUGU.md) |
