@@ -19,7 +19,7 @@ işi *lider*e ve *geliştirici*ye iletir. Deneysel; şimdilik gözlem var, ölç
 
 Both videos have an English voice-over, with on-screen headings in both languages; use the player's full-screen button for the full view. İki video da İngilizce seslendirmelidir, başlıklar iki dildedir; tam görünüm için oynatıcının tam ekran düğmesini kullanın.
 
-Video files / Video dosyaları: [intro, English](tanitim/proxyteam-en.mp4) · [tanıtım, Türkçe](tanitim/proxyteam-tr.mp4) · [flow, English](tanitim/proxyteam-flow-en.mp4)
+Türkçe seslendirmeli tanıtım videosu / The intro with Turkish narration: [tanitim/proxyteam-tr.mp4](tanitim/proxyteam-tr.mp4)
 
 **What is in it · İçinde ne var**
 
