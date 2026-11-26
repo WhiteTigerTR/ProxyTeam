@@ -21,7 +21,8 @@
 //   - kopyaların içinde çalışan ama tanınmayan süreçler (bilgi),
 //   - yayın kilidi var mı (engel: yayın yarıda kesilmez),
 //   - devir notu (varsayılan docs/DURUM.md) yakın zamanda commit edildi mi (uyarı; ayarla engel yapılabilir),
-//   - rafa kaldırılmış iş (git stash) var mı (uyarı: mola onu görmez).
+//   - rafa kaldırılmış iş (git stash) var mı (uyarı: mola onu görmez; iletisi "yarım" ile başlayan kayıt
+//     bekleyen yarım iş diye, dal adıyla yazılır).
 //
 // Platform: macOS ve Linux'ta denendi. Windows'ta süreç denetimi PowerShell ile yapılır (çalışma klasörü
 // okunamaz; süreç, komut satırında kopyanın yolu geçiyorsa o kopyaya sayılır). Windows yolu DENENMEDİ; WSL önerilir.
@@ -48,7 +49,8 @@
 //   - unrecognized processes running inside the working copies (info),
 //   - a deploy lock (blocker: a deploy is never cut off halfway),
 //   - a handoff note (default docs/DURUM.md) that was not committed recently (warning; the config can make it a blocker),
-//   - stashed work (git stash) (warning: the break check cannot see it).
+//   - stashed work (git stash) (warning: the break check cannot see it; an entry whose message starts with
+//     "yarım" is listed as pending half-done work, with its branch name).
 //
 // Platform: tried on macOS and Linux. On Windows the process check uses PowerShell (the working directory cannot be
 // read; a process is attributed to a working copy if that copy's path appears in its command line). The Windows path
@@ -278,16 +280,42 @@ export function grupla(surecler) {
   return gruplar;
 }
 
+/**
+ * "git stash list" çıktısını çözer: [{ ad, dal, ileti, yarim }]. İletisi "yarım" ile başlayan kayıt,
+ * commit kancasından geçmediği için rafa alınmış yarım iştir.
+ * EN: Parses "git stash list" output: [{ ad, dal, ileti, yarim }]. An entry whose message starts with "yarım"
+ * (half-done) is unfinished work that was stashed because it could not pass the commit hook.
+ */
+export function rafCoz(cikti) {
+  const raflar = [];
+  for (const satir of cikti.split("\n")) {
+    const m = /^(stash@\{\d+\}): (WIP on|On) ([^:]+): (.*)$/.exec(satir.trim());
+    if (!m) continue;
+    const ileti = m[4];
+    raflar.push({ ad: m[1], dal: m[3], ileti, yarim: m[2] === "On" && ileti.toLocaleLowerCase("tr").startsWith("yarım") });
+  }
+  return raflar;
+}
+
+/** Raf kayıtları için uyarı satırları; yarım işler önde. / EN: Warning lines for stash entries; half-done work first. */
+export function rafSatirlari(raflar) {
+  const satir = (r) =>
+    r.yarim
+      ? `${r.ad} (${r.dal}): bekleyen yarım iş; dalın sahibi dönünce kendi kopyasında geri alır (git stash pop ${r.ad})`
+      : `${r.ad} (${r.dal}): rafta iş (git stash); mola bunu görmez. Kalıcı olsun istiyorsan "yarım" diye commit et`;
+  return [...raflar.filter((r) => r.yarim), ...raflar.filter((r) => !r.yarim)].map(satir);
+}
+
 /** Bütün bulgulardan kararı çıkarır. / EN: Turns all the findings into a verdict. */
-export function karar({ kopyalar, kirliler, gonderilmemis, uzakYok = [], surecler, kilitler, devirNotu = null, raf = 0 }, uzak = "origin") {
+export function karar({ kopyalar, kirliler, gonderilmemis, uzakYok = [], surecler, kilitler, devirNotu = null, raflar = [] }, uzak = "origin") {
   const engel = [];
   const uyari = [];
   const bilgi = [];
-  for (const k of kirliler) engel.push(`${k.yol}: commit edilmemiş değişiklik (${k.sayi} dosya); "yarım" diye commit et`);
+  for (const k of kirliler) engel.push(`${k.yol}: commit edilmemiş değişiklik (${k.sayi} dosya); "yarım" diye commit et. Commit kancası geçirmiyorsa kancayı atlama (--no-verify yok): "yarım" iletili stash al, yamasını yerel/mola-guvence/ altına yaz`);
   for (const [anahtar, pidler] of grupla(surecler.engeller)) engel.push(`${anahtar}: PID ${pidler.join(", ")}; durdur`);
   for (const k of kilitler) engel.push(`${k.yol}: ${k.ileti}`);
   if (devirNotu) (devirNotu.engel ? engel : uyari).push(devirNotu.ileti);
-  if (raf > 0) uyari.push(`rafta (git stash) ${raf} kayıt var; mola bunları görmez. Kalıcı olsun istiyorsan "yarım" diye commit et`);
+  uyari.push(...rafSatirlari(raflar));
   for (const g of gonderilmemis) uyari.push(`${g.yol}: ${uzak} deposuna gönderilmemiş ${g.sayi} commit (git push ${uzak} ${g.dal ?? "<dal>"})`);
   for (const y of uzakYok) uyari.push(`${y}: "${uzak}" adlı uzak depo yok ya da hiç alınmamış; gönderim denetlenemedi`);
   for (const [anahtar, pidler] of grupla(surecler.bilgiler)) bilgi.push(`${anahtar}: PID ${pidler.join(", ")}; bilgi kapısını dinliyor, durmayı engellemez`);
@@ -478,8 +506,8 @@ function topla(kok, ayar) {
   const sonNot = Number(cikti("git", ["log", "-1", "--all", "--format=%ct", "--", ayar.devirNotu.dosya], { cwd: kok }).trim()) || null;
   const anaYol = kopyalar[0]?.yol ?? kok;
   const devirNotu = devirNotuDurumu(sonNot, Math.floor(Date.now() / 1000), ayar.devirNotu, fs.existsSync(path.join(anaYol, ayar.devirNotu.dosya)));
-  const raf = cikti("git", ["stash", "list"], { cwd: kok }).split("\n").filter(Boolean).length;
-  return { kopyalar, kirliler, gonderilmemis, uzakYok, surecler: siniflanan, kilitler, devirNotu, raf };
+  const raflar = rafCoz(cikti("git", ["stash", "list"], { cwd: kok }));
+  return { kopyalar, kirliler, gonderilmemis, uzakYok, surecler: siniflanan, kilitler, devirNotu, raflar };
 }
 
 function yaz(yol, veri) {
@@ -544,7 +572,7 @@ function ana() {
         ? molaFarki(onceki.kopyalar, bulgular.kopyalar)
         : [`kayıtlı bir mola yok (${ayar.kayit}); önce "mola" güvenli dönmeliydi`];
     // Rafa kaldırılmış iş moladan dönerken unutulmasın. / EN: So stashed work is not forgotten when the break ends.
-    if (bulgular.raf > 0) console.log(`UYARI  rafta (git stash) ${bulgular.raf} kayıt var; devam etmeden önce bak (git stash list)`);
+    for (const s of rafSatirlari(bulgular.raflar)) console.log("UYARI  " + s);
     yaz(kayitYolu, { durum: "çalışıyor", zaman, molaBaslangici: onceki?.durum === "molada" ? onceki.zaman : null, kopyalar: bulgular.kopyalar.map(({ yol, dal, commit }) => ({ yol, dal, commit })), farklar });
     if (farklar.length) {
       console.log("Mola bitti, ama kopyalar molaya girerken kaydedilen yerde değil:");

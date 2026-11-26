@@ -47,7 +47,7 @@ Her büyük görev bitince ya da bir saatten uzun aradan önce: kendi devir notu
 ### Mola
 - "Mola ver" denince bütün oturumlar kayıpsız durur (hedef: yaklaşık 5 dakika).
 - Sıra önemlidir. Önce denetim: {{LIDER}} `node araclar/mola.mjs` çalıştırır ve çıktısını (engel ve uyarı satırlarıyla) {{VEKIL}} oturumuna yazar. Böylece bir adım takılsa bile durum bilinir.
-- Sonra engeller kapatılır: uzun süreçler durdurulur, yarım iş "yarım" diye commit edilir, herkes kendi devir notunu yazar.
+- Sonra engeller kapatılır: uzun süreçler durdurulur, yarım iş "yarım" diye commit edilir, herkes kendi devir notunu yazar. Commit kancası geçirmiyorsa kanca atlanmaz (`--no-verify` yok): iş `git stash push -u -m "yarım: ..."` ile rafa alınır, yaması `yerel/mola-guvence/<dal>.patch` dosyasına yazılır (`git stash show -p --include-untracked`), yeri devir notuna yazılır.
 - {{LIDER}} denetimi yeniden çalıştırır. Çıkış 0 ise {{VEKIL}} oturumuna "güvende" ve tek satır durum yazar.
 - {{VEKIL}} "güvende" sözünü proje sahibine iletmeden önce kaydı kendisi doğrular: `node araclar/mola.mjs` çıkışına ve `yerel/mola.json` dosyasına bakar.
 - Yayın yarıda kesilmez: ya biter ya önceki sürüme dönülür.

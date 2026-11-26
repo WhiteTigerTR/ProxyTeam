@@ -19,6 +19,7 @@ import {
   surecleriSiniflandir,
   kilitDurumu,
   karar,
+  rafCoz,
   molaFarki,
   devirNotuDurumu,
   windowsSurecleriAyristir,
@@ -215,12 +216,19 @@ test("uçtan uca: temiz, kirli, kilit, mola bitti, molada commit", (t) => {
   assert.equal(kayit.kopyalar.length, 2);
 
   // Rafta iş varsa "bitti" bunu uyarı olarak yazar. / EN: "bitti" prints stashed work as a warning.
+  // Kılavuzdaki "kanca geçirmiyorsa" yolu: izlenmeyen dosya dahil stash ve yama.
+  // EN: The "hook will not pass" path from the guide: stash including untracked files, plus a patch.
   fs.writeFileSync(path.join(kopya, "raf.txt"), "rafta\n");
-  git(kopya, "add", ".");
-  git(kopya, "stash", "-q");
+  git(kopya, "stash", "push", "-q", "-u", "-m", "yarım: deneme");
+  const yama = execFileSync("git", ["stash", "show", "-p", "--include-untracked", "stash@{0}"], { cwd: kopya, encoding: "utf8" });
+  assert.match(yama, /raf\.txt/);
+  assert.match(yama, /\+rafta/);
+  r = mola(depo);
+  assert.equal(r.kod, 0, r.cikti);
+  assert.match(r.cikti, /UYARI  stash@\{0\} \(is\/deneme\): bekleyen yarım iş/);
   r = mola(kopya, "bitti");
   assert.equal(r.kod, 0, r.cikti);
-  assert.match(r.cikti, /UYARI .*rafta \(git stash\) 1 kayıt/);
+  assert.match(r.cikti, /UYARI  stash@\{0\} \(is\/deneme\): bekleyen yarım iş/);
   git(kopya, "stash", "drop", "-q");
   assert.equal(JSON.parse(fs.readFileSync(path.join(depo, "yerel/mola.json"), "utf8")).durum, "çalışıyor");
 
@@ -277,10 +285,11 @@ test("devir notu: taze, bayat, hiç commit edilmemiş, kullanılmıyor", () => {
 
 test("karar: devir notu uyarı ya da engel; raf uyarı", () => {
   const taban = { kopyalar: [], kirliler: [], gonderilmemis: [], surecler: { engeller: [], bilgiler: [], bilinmeyenler: [] }, kilitler: [] };
-  const u = karar({ ...taban, devirNotu: { ileti: "not bayat", engel: false }, raf: 2 });
+  const u = karar({ ...taban, devirNotu: { ileti: "not bayat", engel: false }, raflar: rafCoz("stash@{0}: WIP on main: abc1234 konu\nstash@{1}: On is/0040-ornek: yarım: tür hatası var\n") });
   assert.equal(u.guvenli, true);
-  assert.equal(u.uyari.length, 2);
-  assert.match(u.uyari[1], /rafta \(git stash\) 2 kayıt/);
+  assert.equal(u.uyari.length, 3);
+  assert.match(u.uyari[1], /^stash@\{1\} \(is\/0040-ornek\): bekleyen yarım iş/);
+  assert.match(u.uyari[2], /^stash@\{0\} \(main\): rafta iş/);
   const e = karar({ ...taban, devirNotu: { ileti: "not bayat", engel: true } });
   assert.equal(e.guvenli, false);
   assert.deepEqual(e.engel, ["not bayat"]);

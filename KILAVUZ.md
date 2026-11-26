@@ -203,6 +203,16 @@ Neden: uzun bağlam her adımda yeniden okunur ve kotayı yer. Beklenti, temiz b
 5. Lider denetimi yeniden çalıştırır. Çıkış 0 ise vekile "güvende" ve tek satır durum yazar; çıkış 1 ise kalan engelleri kapatıp yeniden dener.
 6. Vekil "güvende" sözünü proje sahibine iletmeden önce kaydı kendisi doğrular: `node araclar/mola.mjs` çıkışına ve `yerel/mola.json` dosyasına bakar.
 
+**Commit kancası yarım işi geçirmiyorsa kanca atlanmaz** (`--no-verify` kullanılmaz). Yarım iş çoğu zaman tür denetiminden ya da testten geçmez. O durumda iş, izlenmeyen dosyalarıyla birlikte rafa alınır ve yaması ana kopyadaki `yerel/mola-guvence/` klasörüne yazılır; raf yanlışlıkla silinirse yama ikinci kopyadır:
+
+```bash
+git stash push -u -m "yarım: <ne yarım kaldı>"
+mkdir -p <ana kopya>/yerel/mola-guvence
+git stash show -p --include-untracked "stash@{0}" > <ana kopya>/yerel/mola-guvence/<dal>.patch
+```
+
+Dosya adında dal adındaki `/` yerine `-` yazılır (Git 2.32 ve sonrası gerekir). Rafın ve yamanın yeri devir notuna yazılır. Dönüşte dalın sahibi kendi kopyasında `git stash pop` ile işi geri alır. Betik, iletisi "yarım" ile başlayan rafı dal adıyla "bekleyen yarım iş" diye yazar; mola bununla engellenmez.
+
 **Yayın yarıda kesilmez.** Ya bitirilir ya önceki sürüme dönülür. Betik yayın kilidini görürse molayı geciktirir.
 
 "Mola bitti" denince lider `node araclar/mola.mjs bitti` çalıştırır. Betik, kopyaların molaya girerken kaydedilen
@@ -216,7 +226,7 @@ Betik ne denetler:
 | Ayarda tanımlı süreçler (test, geliştirme sunucusu, Blender gibi) bir çalışma kopyasının içinde çalışıyor mu | Çalışıyorsa **engel** |
 | Yayın kilidi var mı | Varsa **engel** |
 | Devir notu (`docs/DURUM.md`) son 30 dakikada commit edildi mi | Edilmediyse **uyarı** (`devirNotu.engel: true` ile engel yapılabilir) |
-| Rafa kaldırılmış iş (`git stash`) var mı | Varsa **uyarı** (mola onu görmez) |
+| Rafa kaldırılmış iş (`git stash`) var mı | Varsa **uyarı**, dal adıyla (mola onu görmez). İletisi "yarım" ile başlayan kayıt bekleyen yarım iş diye önde yazılır |
 | Uzak depoya gönderilmemiş commit var mı | **Uyarı** (yerel commit kayıp değildir) |
 | Worktree içinde tanınmayan süreç var mı | **Bilgi** |
 

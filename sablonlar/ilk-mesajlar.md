@@ -122,6 +122,8 @@ Mola ver. Hedef: bütün oturumlar yaklaşık 5 dakikada kayıpsız dursun.
 1) Önce node araclar/mola.mjs çalıştır ve çıktısını bana yaz (engel ve uyarı satırlarıyla).
 2) Sonra engelleri kapat: uzun süreçler dursun, yarım iş "yarım" diye commit edilsin, herkes kendi devir notunu yazsın
    (sen docs/DURUM.md dosyasına). Yayın sürüyorsa kesme; bitir ya da önceki sürüme dön.
+   Commit kancası yarım işi geçirmiyorsa kancayı atlama (--no-verify yok): "yarım" iletili stash al,
+   yamasını yerel/mola-guvence/ altına yaz, yerini devir notuna yaz.
 3) node araclar/mola.mjs yeniden çalıştır; çıkış 0 verince bana "güvende" ve tek satır durum yaz.
 ```
 
@@ -130,6 +132,9 @@ Mola ver. Hedef: bütün oturumlar yaklaşık 5 dakikada kayıpsız dursun.
 ```
 Mola. İşini durdur, çalışan testi ve sunucuyu kapat, yarım işi "yarım: ..." diye commit et,
 görev dosyasına kısa devir notu yaz, bana "durdum" yaz.
+Commit kancası geçirmiyorsa kancayı atlama (--no-verify yok): git stash push -u -m "yarım: ..." ile rafa al,
+yamasını ana kopyadaki yerel/mola-guvence/<dal>.patch dosyasına yaz (git stash show -p --include-untracked),
+yerini devir notuna ve bana yaz.
 ```
 
 ## Mola bitti

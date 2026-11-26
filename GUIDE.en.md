@@ -208,6 +208,16 @@ When "Mola ver" (take a break) is said, the goal is that all sessions stop witho
 5. The lead runs the check again. On exit 0 it writes "güvende" (safe) and a one-line status to the proxy; on exit 1 it clears what is left and tries again.
 6. Before passing "güvende" on to the owner, the proxy verifies the record itself: it looks at the exit code of `node araclar/mola.mjs` and at `yerel/mola.json`.
 
+**If the commit hook will not let half-done work through, the hook is not skipped** (no `--no-verify`). Half-done work often fails type checks or tests. In that case the work is stashed together with its untracked files, and a patch of it is written to `yerel/mola-guvence/` in the main working copy; if the stash is dropped by mistake, the patch is the second copy:
+
+```bash
+git stash push -u -m "yarım: <ne yarım kaldı>"
+mkdir -p <ana kopya>/yerel/mola-guvence
+git stash show -p --include-untracked "stash@{0}" > <ana kopya>/yerel/mola-guvence/<dal>.patch
+```
+
+Here `<ana kopya>` is the main working copy, `<dal>` the branch name and `<ne yarım kaldı>` a few words on what is half done. In the file name, `/` in the branch name is written as `-` (needs Git 2.32 or later). The handoff note says where the stash and the patch are. On return, the owner of the branch restores the work in its own copy with `git stash pop`. The script lists a stash whose message starts with "yarım" as "pending half-done work", with its branch name; it does not block the break.
+
 **A deploy is never interrupted.** Either it is finished or the previous version is restored. If the script sees the deploy lock, it delays the break.
 
 When "Mola bitti" (the break is over) is said, the lead runs `node araclar/mola.mjs bitti`. The script checks whether the working copies are at the
@@ -221,7 +231,7 @@ What the script checks:
 | Are the processes defined in the settings (tests, development server, Blender and the like) running inside a working copy | If running, **block** |
 | Is there a deploy lock | If there is, **block** |
 | Was the handoff note (`docs/DURUM.md`) committed in the last 30 minutes | If not, **warning** (can be made a block with `devirNotu.engel: true`) |
-| Is there shelved work (`git stash`) | If there is, **warning** (the break does not see it) |
+| Is there shelved work (`git stash`) | If there is, **warning**, with the branch name (the break does not see it). An entry whose message starts with "yarım" is listed first, as pending half-done work |
 | Are there commits not pushed to the remote | **Warning** (a local commit is not lost) |
 | Is there an unrecognized process inside a worktree | **Info** |
 
