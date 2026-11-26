@@ -241,7 +241,7 @@ Komutlar: `node araclar/mola.mjs` (mola), `node araclar/mola.mjs bitti`; `node a
 - `main`e giren iş önce **dev** ortamına gider. Tam testler orada koşar.
 - Testler geçerse **canlı kapısı** denetlenir (aşağıda "Canlıya çıkış yetkisi"). Kapı geçilirse **aynı derleme** canlıya yükseltilir; yeniden derlenmez. Böylece test edilen ile yayımlanan aynıdır.
 - İki ortamda da **sürüm rozeti** görünür (commit kimliği ve ortam adı). Bu, "hangi ortamdayım" sorusunu görüntüyle yanıtlar.
-- **Yayın oynanmadan bitmez.** Yayından sonra lider gerçek ortamda tur atar, görüntü alır, bağımsız göze verir.
+- **Yayın denenmeden bitmez.** Yayından sonra lider gerçek ortamda tur atar, görüntü alır, bağımsız göze verir.
   Raporda "üründe olan" ile "henüz olmayan" ayrı yazılır.
 - Yayın betiği bir kilit dosyası yazar; mola denetimi onu görür. Kilit ve canlı kapısı adımlarının örneği: `sablonlar/ornekler/yayin-kilidi.sh`.
 

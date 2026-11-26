@@ -56,7 +56,7 @@ Betikle ya da testle ölçülebilen şey önce öyle ölçülür; göz, ölçül
 ### Yayın
 - `main`e giren iş önce dev ortamına gider; testler orada koşar; aynı derleme canlıya yükseltilir, yeniden derlenmez. İki ortamda da sürüm rozeti görünür.
 - Canlıya yükseltmeden hemen önce `node araclar/canli.mjs denetle <yayımlanacak commit>` çalışır; çıkış 0 değilse canlıya çıkılmaz. Yayın bitince `node araclar/canli.mjs kullan`.
-- Yayın oynanmadan bitmez: gerçek ortamda tur atılır, görüntü alınır, bağımsız göz bakar.
+- Yayın denenmeden bitmez: gerçek ortamda tur atılır, görüntü alınır, bağımsız göz bakar.
 
 ### Sır
 - Sır dosyaları yalnız araçlarca okunur. İçerik gösteren komut (`cat`, `head`, `grep`, `less`) kullanılmaz; yalnız `wc -c` ya da `test -s` ile yoklanır.
