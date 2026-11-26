@@ -564,7 +564,7 @@ VekilEkip/
   ornek/                        filled-in example: status, decision, task, proxy report (an invented project)
   OLCUM-GUNLUGU.md              measurement log: first entry 4 December 2026, then three Fridays, Turkish
   MEASUREMENT-LOG.en.md         the same in English
-  tanitim/                      videos: the 60-second intro (English and Turkish) and the flow walkthrough (English)
+  tanitim/                      videos: the 60-second intro (English and Turkish) and the flow walkthrough (English), cover images
   LICENSE                       MIT
 ```
 

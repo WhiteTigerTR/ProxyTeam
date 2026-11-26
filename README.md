@@ -8,16 +8,16 @@ işi *lider*e ve *geliştirici*ye iletir. Deneysel; şimdilik gözlem var, ölç
 
 <table>
 <tr>
-<th width="50%">Why · Neden</th>
-<th width="50%">How the work flows · İş nasıl akar</th>
+<th width="50%">Why · Neden (1:00)</th>
+<th width="50%">How the work flows · İş nasıl akar (1:18)</th>
 </tr>
 <tr>
-<td><video src="https://github.com/user-attachments/assets/aef53dca-43c2-4105-8004-d0706bac27d9" controls></video></td>
-<td><video src="https://github.com/user-attachments/assets/d4941eea-c0e8-4354-9c5b-1923295a62f0" controls></video></td>
+<td align="center"><a href="tanitim/proxyteam-en.mp4"><img src="tanitim/kapak-neden.jpg" width="340" alt="Intro video: why a proxy. Click to watch."></a></td>
+<td align="center"><a href="tanitim/proxyteam-flow-en.mp4"><img src="tanitim/kapak-akis.jpg" width="340" alt="Flow video: how the work moves between the sessions. Click to watch."></a></td>
 </tr>
 </table>
 
-Both videos have an English voice-over, with on-screen headings in both languages. İlk videonun Türkçe seslendirmeli sürümü: [tanitim/proxyteam-tr.mp4](tanitim/proxyteam-tr.mp4)
+Click a cover to watch. Both videos have an English voice-over, with on-screen headings in both languages. İzlemek için kapağa tıklayın. İlk videonun Türkçe seslendirmeli sürümü: [tanitim/proxyteam-tr.mp4](tanitim/proxyteam-tr.mp4)
 
 | | English | Türkçe |
 |---|---|---|

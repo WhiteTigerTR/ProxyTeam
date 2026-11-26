@@ -559,7 +559,7 @@ VekilEkip/
   USAGE.en.md                   kullanım talimatının İngilizcesi
   MEASUREMENT-LOG.en.md         ölçüm günlüğünün İngilizcesi
   OLCUM-GUNLUGU.md              ölçüm günlüğü: ilk giriş 4 Aralık 2026, sonra üç cuma
-  tanitim/                      tanıtım videoları: 60 saniyelik tanıtım (İngilizce ve Türkçe) ve akış şeması videosu (İngilizce)
+  tanitim/                      tanıtım videoları: 60 saniyelik tanıtım (İngilizce ve Türkçe) ve akış şeması videosu (İngilizce), kapak görselleri
   LICENSE                       MIT
 ```
 
